@@ -51,12 +51,19 @@ int ForgeWithTrigger(
 		const double &ref_time = trigger_time[i];
 		ppac.flag = 0;
 		while (entry < ipt->GetEntriesFast()) {
-			ipt->GetEntry(entry++);
-			if (!raw.cv) continue;
+			ipt->GetEntry(entry);
+			if (!raw.cv) {
+				++entry;
+				continue;
+			}
 			int bit = raw.channel == 4
 				? raw.index + 12
 				: raw.index*4 + raw.channel;
-			if (fabs(raw.time - ref_time) < window) {
+			if (raw.time < ref_time - window) {
+				++entry;
+				continue;
+			}
+			if (raw.time < ref_time + window) {
 				forge_window.Fill(raw.time - ref_time);
 				if (
 					(ppac.flag & (1 << bit)) == 0
@@ -66,9 +73,10 @@ int ForgeWithTrigger(
 					ppac.time[bit] = raw.time;
 					ppac.energy[bit] = raw.energy;
 				}
-			} else {
-				break;
+				++entry;
+				continue;
 			}
+			break;
 		}
 		opt.Fill();
 	}

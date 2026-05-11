@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+
+#include <TTree.h>
+
 namespace glimmer {
 
 struct RawSiliconEvent {
@@ -7,5 +11,13 @@ struct RawSiliconEvent {
 	double time;
 	bool cv;
 };
+
+void SetupInput(
+	TTree *tree,
+	RawSiliconEvent &event,
+	const std::string &prefix = ""
+);
+
+void SetupOutput(TTree *tree, RawSiliconEvent &event);
 
 }

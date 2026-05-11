@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+
+#include <TTree.h>
+
 namespace glimmer {
 
 constexpr int kBeamT1 = 0;
@@ -12,6 +16,10 @@ struct RawBeamEvent {
 	double time;
 	bool cv;
 };
+
+void SetupInput(TTree *tree, RawBeamEvent &event, const std::string &prefix = "");
+
+void SetupOutput(TTree *tree, RawBeamEvent &event);
 
 
 }

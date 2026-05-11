@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+
+#include <TTree.h>
+
 namespace glimmer {
 
 constexpr int kDssdSideFront = 0;
@@ -12,5 +16,9 @@ struct RawDssdEvent {
 	double time;
 	bool cv;
 };
+
+void SetupInput(TTree *tree, RawDssdEvent &event, const std::string &prefix = "");
+
+void SetupOutput(TTree *tree, RawDssdEvent &event);
 
 }

@@ -28,9 +28,10 @@ bool MapT0d2Event(const glimmer::DecodeEvent &decode, glimmer::RawDssdEvent &dss
 	switch (decode.module) {
 		case 4:
 			if (decode.channel == 15) return false;
+			[[fallthrough]];
 		case 5:
 			dssd.side = glimmer::kDssdSideFront;
-			dssd.strip = decode.channel;
+			dssd.strip = decode.channel + (decode.module-4)*16;
 			break;
 		case 6:
 			if (decode.channel == 1) {
@@ -42,7 +43,7 @@ bool MapT0d2Event(const glimmer::DecodeEvent &decode, glimmer::RawDssdEvent &dss
 			}
 			break;
 		case 7:
-			decode.side = glimmer::kDssdSideBack;
+			dssd.side = glimmer::kDssdSideBack;
 			dssd.strip = decode.channel + 16;
 			break;
 		default:

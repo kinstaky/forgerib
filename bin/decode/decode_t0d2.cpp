@@ -48,18 +48,18 @@ bool MapT0d1Event(const glimmer::DecodeEvent &decode, glimmer::RawDssdEvent &dss
 		case 3:
 		case 4:
 			dssd.side = glimmer::kDssdSideFront;
-			dssd.strip = decode.channel + (dssd.module - 2) * 16;
+			dssd.strip = decode.channel + (decode.module - 2) * 16;
 			break;
 		case 5:
 		case 7:
 		case 8:
 			dssd.side = glimmer::kDssdSideBack;
-			dssd.strip = decode.channel + (dssd.module - 5) * 16;
+			dssd.strip = decode.channel + (decode.module - 5) * 16;
 			break;
 		case 6:
-			if (dssd.channel == 0) return false;
+			if (decode.channel == 0) return false;
 			dssd.side = glimmer::kDssdSideBack;
-			dssd.strip = decode.channel;
+			dssd.strip = decode.channel + 16;
 			break;
 		default:
 			return false;

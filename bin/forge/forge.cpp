@@ -3,7 +3,11 @@
 #include <TString.h>
 
 #include "include/forge/colossus.h"
+#include "include/forge/forge_beam.h"
 #include "include/forge/forge_ppac.h"
+#include "include/forge/forge_t0d1.h"
+#include "include/forge/forge_t0d2.h"
+#include "include/forge/forge_trigger.h"
 #include "include/event/raw/raw_trigger_event.h"
 
 #include "external/cxxopts.hpp"
@@ -92,17 +96,21 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector to forge: ppac",
+			"Detector to forge: ppac, t0d1, t0d2, beam, trigger",
 			cxxopts::value<std::vector<std::string>>()
 		);
 	options.parse_positional({"detectors"});
 	auto result = options.parse(argc, argv);
 
+	if (result.count("help") || !result.count("run")) {
+		std::cout << options.help() << std::endl;
+		return 0;
+	}
 	bool use_trigger = result["trigger"].as<bool>();
 	int run = result["run"].as<int>();
 	std::vector<std::string> detectors =
 		result["detectors"].as<std::vector<std::string>>();
-	if (result.count("help") || !result.count("run") || detectors.empty()) {
+	if (detectors.empty()) {
 		std::cout << options.help() << std::endl;
 		return 0;
 	}
@@ -114,8 +122,16 @@ int main(int argc, char **argv) {
 	}
 	std::string workspace = tbl["workspace"].as_string()->get();
 
+	bool need_trigger = use_trigger;
+	for (const std::string &det : detectors) {
+		if (det == "trigger") {
+			need_trigger = true;
+			break;
+		}
+	}
+
 	std::vector<double> triggers;
-	if (use_trigger) {
+	if (need_trigger) {
 		if (ReadMainTrigger(
 			workspace.c_str(),
 			run,
@@ -151,6 +167,101 @@ int main(int argc, char **argv) {
 				std::cerr << "Error: Froge ppac failed.\n";
 			} else {
 				std::cout << "Forge ppac success!\n";
+			}
+		} else if (det == "t0d1") {
+			TString input_path = TString::Format(
+				"%s/decode/t0d1_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t0d1_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT0d1(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t0d1 failed.\n";
+			} else {
+				std::cout << "Forge t0d1 success!\n";
+			}
+		} else if (det == "t0d2") {
+			TString input_path = TString::Format(
+				"%s/decode/t0d2_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t0d2_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT0d2(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t0d2 failed.\n";
+			} else {
+				std::cout << "Forge t0d2 success!\n";
+			}
+		} else if (det == "beam") {
+			TString input_path = TString::Format(
+				"%s/decode/beam_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/beam_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeBeam(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge beam failed.\n";
+			} else {
+				std::cout << "Forge beam success!\n";
+			}
+		} else if (det == "trigger") {
+			TString input_path = TString::Format(
+				"%s/decode/trigger_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/trigger_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			int result = glimmer::ForgeTrigger(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge trigger failed.\n";
+			} else {
+				std::cout << "Forge trigger success!\n";
 			}
 		}
 	}

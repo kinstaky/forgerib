@@ -1,4 +1,4 @@
-#include "include/forge/forge_t0d2.h"
+#include "include/forge/forge_t0d1.h"
 
 #include <algorithm>
 #include <cmath>
@@ -78,7 +78,7 @@ int ForgeWithTrigger(
 ) {
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
-	TTree opt("tree", "forged t0d2");
+	TTree opt("tree", "forged t0d1");
 	DssdEvent dssd;
 	SetupOutput(&opt, dssd);
 
@@ -94,7 +94,7 @@ int ForgeWithTrigger(
 	size_t total = trigger_time.size();
 	size_t last_percentage = 0;
 	if (report) {
-		printf("Forging T0D2 with trigger   0%%");
+		printf("Forging T0D1 with trigger   0%%");
 		fflush(stdout);
 	}
 	long long entry = 0;
@@ -144,7 +144,7 @@ int ForgeWithoutTrigger(
 ) {
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
-	TTree opt("tree", "forged t0d2");
+	TTree opt("tree", "forged t0d1");
 	DssdEvent dssd;
 	SetupOutput(&opt, dssd);
 
@@ -162,7 +162,7 @@ int ForgeWithoutTrigger(
 	long long total_entries = ipt->GetEntries();
 	long long last_percentage = 0;
 	if (report) {
-		printf("Forging T0D2 without trigger   0%%");
+		printf("Forging T0D1 without trigger   0%%");
 		fflush(stdout);
 	}
 	for (long long entry = 0; entry < total_entries; ++entry) {
@@ -199,7 +199,7 @@ int ForgeWithoutTrigger(
 
 } // namespace
 
-int ForgeT0d2(
+int ForgeT0d1(
 	const std::vector<double> &trigger_time,
 	const char *path,
 	const char *output_path,

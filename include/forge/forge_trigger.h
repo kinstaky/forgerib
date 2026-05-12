@@ -1,11 +1,11 @@
-#ifndef __FORGE_T0D1_H__
-#define __FORGE_T0D1_H__
+#ifndef __FORGE_TRIGGER_H__
+#define __FORGE_TRIGGER_H__
 
 #include <vector>
 
 namespace glimmer {
 
-int ForgeT0d1(
+int ForgeTrigger(
 	const std::vector<double> &trigger_time,
 	const char *path,
 	const char *output_path,

@@ -15,13 +15,13 @@ void SetupInput(TTree *tree, DssdEvent &event, const std::string &prefix) {
 
 void SetupOutput(TTree *tree, DssdEvent &event) {
 	tree->Branch("front_num", &event.front_num, "fn/I");
-	tree->Branch("front_strip", event.front_strip, "fs[8]/I");
-	tree->Branch("front_energy", event.front_energy, "fe[8]/D");
-	tree->Branch("front_time", event.front_time, "ft[8]/D");
+	tree->Branch("front_strip", event.front_strip, "fs[fn]/I");
+	tree->Branch("front_energy", event.front_energy, "fe[fn]/D");
+	tree->Branch("front_time", event.front_time, "ft[fn]/D");
 	tree->Branch("back_num", &event.back_num, "bn/I");
-	tree->Branch("back_strip", event.back_strip, "bs[8]/I");
-	tree->Branch("back_energy", event.back_energy, "be[8]/D");
-	tree->Branch("back_time", event.back_time, "bt[8]/D");
+	tree->Branch("back_strip", event.back_strip, "bs[bn]/I");
+	tree->Branch("back_energy", event.back_energy, "be[bn]/D");
+	tree->Branch("back_time", event.back_time, "bt[bn]/D");
 }
 
 }

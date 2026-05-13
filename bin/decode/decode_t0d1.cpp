@@ -76,7 +76,7 @@ void DecodeT0d2(
 	}
 	std::vector<int> module(kD2Modules, kD2Modules + kD2DecoderNum);
 	std::vector<int> rate(kD2Rates, kD2Rates + kD2DecoderNum);
-	glimmer::Decoder decoder(kD2DecoderNum, run, module, rate, raw_path, raw_prefix);
+	glimmer::Decoder decoder(kD2DecoderNum, run, 1, module, rate, raw_path, raw_prefix);
 	for (
 		glimmer::DecodeEvent *event = decoder.GetEvent(report);
 		event;

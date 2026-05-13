@@ -116,7 +116,7 @@ void DecodeOthers(
 	}
 	std::vector<int> module(kOthersModules, kOthersModules + kOthersDecoderNum);
 	std::vector<int> rate(kOthersRates, kOthersRates + kOthersDecoderNum);
-	glimmer::Decoder decoder(kOthersDecoderNum, run, module, rate, raw_path, raw_prefix);
+	glimmer::Decoder decoder(kOthersDecoderNum, run, 2, module, rate, raw_path, raw_prefix);
 	for (
 		glimmer::DecodeEvent *event = decoder.GetEvent(report);
 		event;

@@ -65,7 +65,7 @@ void DecodeBeam(
 	}
 	std::vector<int> module(kBeamModules, kBeamModules + kBeamDecoderNum);
 	std::vector<int> rate(kBeamRates, kBeamRates + kBeamDecoderNum);
-	glimmer::Decoder decoder(kBeamDecoderNum, run, module, rate, raw_path, raw_prefix);
+	glimmer::Decoder decoder(kBeamDecoderNum, run, 0, module, rate, raw_path, raw_prefix);
 	for (
 		glimmer::DecodeEvent *event = decoder.GetEvent(report);
 		event;

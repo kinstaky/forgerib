@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
 				triggers,
 				input_path.Data(),
 				output_path.Data(),
-				1000000.0,
+				1000.0,
 				true
 			);
 			if (result) {

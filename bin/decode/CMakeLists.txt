@@ -24,6 +24,3 @@ target_link_libraries(decode_t0d4 PRIVATE decoder raw_dssd_event)
 
 add_executable(decode_others decode_others.cpp)
 target_link_libraries(decode_others PRIVATE decoder raw_csi_event raw_ssd_event)
-
-add_executable(build_ppac build_ppac.cpp)
-target_link_libraries(build_ppac PRIVATE builder ROOT::RIO ROOT::Tree)

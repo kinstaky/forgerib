@@ -51,7 +51,7 @@ void FillHit(const RawDssdEvent &raw, DssdEvent &dssd) {
 		InsertHit(raw.strip, raw.energy, raw.time, dssd.front_num, dssd.front_strip, dssd.front_energy, dssd.front_time);
 	} else if (raw.side == kDssdSideBack) {
 		return;
-		if (raw.energy < 200) return;	
+		if (raw.energy < 200) return;
 		InsertHit(raw.strip, raw.energy, raw.time, dssd.back_num, dssd.back_strip, dssd.back_energy, dssd.back_time);
 	}
 }
@@ -95,7 +95,7 @@ int ForgeWithTrigger(
 		ResetDssdEvent(dssd);
 		while (entry < ipt->GetEntriesFast()) {
 			ipt->GetEntry(entry);
-			if (!raw.cv) {
+			if (raw.time > 1e15) {
 				++entry;
 				continue;
 			}

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+./build/bin/decode/decode_trigger $1
+./build/bin/decode/decode_ppac $1
+./build/bin/decode/decode_beam $1
+./build/bin/forge/forge -r $1 -t main beam ppac
+./build/bin/tune/gated_ppac $1

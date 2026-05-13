@@ -1,6 +1,8 @@
 #include "include/forge/forge_trigger.h"
 
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
 #include <TFile.h>
 #include <TH1F.h>
@@ -11,7 +13,7 @@
 
 namespace glimmer {
 
-namespace {
+constexpr size_t kSlotNum = 1000;
 
 void ResetTriggerEvent(TriggerEvent &trigger) {
 	trigger.flag = 0;
@@ -23,7 +25,6 @@ void ResetTriggerEvent(TriggerEvent &trigger) {
 
 void UpdateTriggerEvent(
 	const RawTriggerEvent &raw,
-	const double ref_time,
 	TriggerEvent &trigger
 ) {
 	if (raw.type < 0 || raw.type >= 6) return;
@@ -32,7 +33,6 @@ void UpdateTriggerEvent(
 	trigger.time[raw.type] = raw.time;
 }
 
-} // namespace
 
 int ForgeTrigger(
 	const std::vector<double> &trigger_time,
@@ -45,6 +45,7 @@ int ForgeTrigger(
 		std::cerr << "Error: Forge trigger requires main trigger reference.\n";
 		return -1;
 	}
+	std::cout << "Trigger size: " << trigger_time.size() << "\n";
 
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
@@ -62,45 +63,59 @@ int ForgeTrigger(
 	RawTriggerEvent raw;
 	SetupInput(ipt, raw);
 
-	RawTriggerEvent buffer[10];
-	size_t buffer_top = 0;
-	size_t buffer_size = 0;
-	size_t total = trigger_time.size();
-	size_t last_percentage = 0;
+	TriggerEvent slots[kSlotNum];
+	for (size_t i = 0; i < kSlotNum; ++i) {
+		ResetTriggerEvent(slots[i]);
+	}
+	size_t tofill_entry = 0;
+
+	long long total = ipt->GetEntries();
+	long long last_percentage = 0;
 	if (report) {
 		printf("Forging trigger   0%%");
 		fflush(stdout);
 	}
-	long long entry = 0;
-	for (size_t i = 0; i < trigger_time.size(); ++i) {
-		if (report && i * 100 / total > last_percentage) {
-			last_percentage = i * 100 / total;
-			printf("\b\b\b\b%3lu%%", last_percentage);
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100ll / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
 			fflush(stdout);
 		}
-		const double &ref_time = trigger_time[i];
-		ResetTriggerEvent(trigger);
-		//while (buffer_top < buffer_size) {
-		//	if (buffer[buffer_top])
-		//}
-		while (entry < ipt->GetEntriesFast()) {
-			ipt->GetEntry(entry);
-			if (!raw.cv) {
-				++entry;
-				continue;
+		ipt->GetEntry(entry);
+		// search trigger
+		double min_time = 2*window;
+		size_t min_time_entry = 0;
+		for (
+			auto iter = std::lower_bound(
+				trigger_time.begin()+tofill_entry,
+				trigger_time.end(),
+				raw.time - window
+			);
+			iter != trigger_time.end();
+			++iter
+		) {
+			if (*iter > raw.time + window) break;
+			forge_window.Fill(raw.time - *iter);
+			if (fabs(*iter - raw.time) < min_time) {
+				min_time = fabs(*iter - raw.time);
+				min_time_entry = iter - trigger_time.begin();
 			}
-			if (raw.time < ref_time - window) {
-				++entry;
-				continue;
-			}
-			if (raw.time <= ref_time + window) {
-				forge_window.Fill(raw.time - ref_time);
-				UpdateTriggerEvent(raw, ref_time, trigger);
-				++entry;
-				continue;
-			}
-			break;
 		}
+		if (min_time > window) continue;
+		//printf("Type: %d, time: %f, entry %ld, tofill %ld, slot_flag %x\n", raw.type, raw.time, min_time_entry, tofill_entry, slots[min_time_entry%kSlotNum].flag);
+		if (min_time_entry < tofill_entry) continue;
+		if (min_time_entry - tofill_entry >= kSlotNum) {
+			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {
+				trigger = slots[fill%kSlotNum];
+				opt.Fill();
+				ResetTriggerEvent(slots[fill%kSlotNum]);
+			}
+			tofill_entry = min_time_entry - kSlotNum+1;
+		}
+		UpdateTriggerEvent(raw, slots[min_time_entry%kSlotNum]);
+	}
+	for (size_t fill = tofill_entry; fill < trigger_time.size(); ++fill) {
+		trigger = slots[fill%kSlotNum];
 		opt.Fill();
 	}
 	if (report) printf("\b\b\b\b100%%\n");

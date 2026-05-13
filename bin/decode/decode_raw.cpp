@@ -10,6 +10,7 @@
 #include "include/decode/raw_reader.h"
 
 constexpr int num = 4;
+constexpr int crate = 0;
 constexpr int module[num] = {2, 3, 4, 5};
 constexpr int rate[num] = {100, 100, 100, 100};
 // constexpr int num = 1;
@@ -33,7 +34,7 @@ int main(int argc, char **argv) {
 	size_t read_size[num];
 	for (int i = 0; i < num; ++i) {
 		readers[i] = std::make_unique<glimmer::RawReader>(
-			raw_path, prefix, run, module[i], rate[i]
+			raw_path, prefix, run, crate, module[i], rate[i]
 		);
 		events[i].used = true;
 		read_size[i] = 0;

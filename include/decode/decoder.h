@@ -14,6 +14,7 @@ public:
 	Decoder(
 		const int num,
 		const int run,
+		const int crate,
 		const std::vector<int> &module,
 		const std::vector<int> &rate,
 		const char *raw_path,

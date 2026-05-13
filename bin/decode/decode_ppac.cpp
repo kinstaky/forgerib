@@ -45,7 +45,7 @@ void DecodePpac(
 	}
 	std::vector<int> module{0};
 	std::vector<int> rate{500};
-	glimmer::Decoder decoder(1, run, module, rate, raw_path, prefix);
+	glimmer::Decoder decoder(1, run, 2, module, rate, raw_path, prefix);
 	for (
 		glimmer::DecodeEvent *event = decoder.GetEvent(report);
 		event;

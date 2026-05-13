@@ -43,7 +43,7 @@ void DecodeTrigger(
 	}
 	std::vector<int> module{0};
 	std::vector<int> rate{250};
-	glimmer::Decoder decoder(1, run, module, rate, raw_path, raw_prefix);
+	glimmer::Decoder decoder(1, run, 0, module, rate, raw_path, raw_prefix);
 	for (
 		glimmer::DecodeEvent *event = decoder.GetEvent(report);
 		event;

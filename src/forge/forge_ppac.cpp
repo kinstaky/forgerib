@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -11,6 +12,8 @@
 #include "include/event/raw/raw_ppac_event.h"
 
 namespace glimmer {
+
+constexpr size_t kSlotNum = 1000;
 
 int ForgeWithTrigger(
 	const std::vector<double> &trigger_time,
@@ -35,49 +38,71 @@ int ForgeWithTrigger(
 	RawPpacEvent raw;
 	SetupInput(ipt, raw);
 
-	size_t total = trigger_time.size();
-	size_t last_percentage = 0;
+	PpacEvent slots[kSlotNum];
+	for (size_t i = 0; i < kSlotNum; ++i) {
+		slots[i].flag = 0;
+		for (int j = 0; j < 15; ++j) {
+			slots[i].valid[j] = false;
+		}
+	}
+	size_t tofill_entry = 0;
+
+	long long total = ipt->GetEntries();
+	long long last_percentage = 0;
 	if (report) {
 		printf("Forging PPAC with trigger   0%%");
 		fflush(stdout);
 	}
-	long long entry = 0;
-	for (size_t i = 0; i < trigger_time.size(); ++i) {
-		if (report && i * 100 / total > last_percentage) {
-			last_percentage = i * 100 / total;
-			printf("\b\b\b\b%3lu%%", last_percentage);
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100 / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
 			fflush(stdout);
 		}
-		const double &ref_time = trigger_time[i];
-		ppac.flag = 0;
-		while (entry < ipt->GetEntriesFast()) {
-			ipt->GetEntry(entry);
-			if (!raw.cv) {
-				++entry;
-				continue;
+		ipt->GetEntry(entry);
+		if (!raw.cv) continue;
+		int bit = raw.channel == 4
+			? raw.index + 12
+			: raw.index*4 + raw.channel;
+		// search trigger
+		double min_time = 2*window;
+		size_t min_time_entry = 0;
+		for (
+			auto iter = std::lower_bound(
+				trigger_time.begin()+tofill_entry,
+				trigger_time.end(),
+				raw.time - window
+			);
+			iter != trigger_time.end();
+			++iter
+		) {
+			if (*iter > raw.time + window) break;
+			forge_window.Fill(raw.time - *iter);
+			if (fabs(*iter - raw.time) < min_time) {
+				min_time = fabs(*iter - raw.time);
+				min_time_entry = iter - trigger_time.begin();
 			}
-			int bit = raw.channel == 4
-				? raw.index + 12
-				: raw.index*4 + raw.channel;
-			if (raw.time < ref_time - window) {
-				++entry;
-				continue;
-			}
-			if (raw.time <= ref_time + window) {
-				forge_window.Fill(raw.time - ref_time);
-				if (
-					(ppac.flag & (1 << bit)) == 0
-					|| raw.energy > ppac.energy[bit]
-				) {
-					ppac.flag |= 1 << bit;
-					ppac.time[bit] = raw.time;
-					ppac.energy[bit] = raw.energy;
-				}
-				++entry;
-				continue;
-			}
-			break;
 		}
+		if (min_time > window) continue;
+		if (min_time_entry < tofill_entry) continue;
+		if (min_time_entry - tofill_entry >= kSlotNum) {
+			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {
+				ppac = slots[fill%kSlotNum];
+				opt.Fill();
+				slots[fill%kSlotNum].flag = 0;
+				for (size_t i = 0; i < 15; ++i) {
+					slots[fill%kSlotNum].valid[i] = 0;
+				}
+			}
+			tofill_entry = min_time_entry - kSlotNum + 1;
+		}
+		slots[min_time_entry%kSlotNum].flag |= 1 << bit;
+		slots[min_time_entry%kSlotNum].valid[bit] = true;
+		slots[min_time_entry%kSlotNum].time[bit] = raw.time;
+		slots[min_time_entry%kSlotNum].energy[bit] = raw.energy;
+	}
+	for (size_t fill = tofill_entry; fill < trigger_time.size(); ++fill) {
+		ppac = slots[fill%kSlotNum];
 		opt.Fill();
 	}
 	if (report) printf("\b\b\b\b100%%\n");

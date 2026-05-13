@@ -17,6 +17,7 @@ public:
 		const char* raw_path,
 		const char *data_name,
 		const int run,
+		const int crate,
 		const int module,
 		const int rate
 	);
@@ -41,6 +42,8 @@ private:
 	std::string data_name_;
 	// run number
 	int run_;
+	// crate id
+	int crate_id_;
 	// module index, start from 0
 	int module_;
 	// rate

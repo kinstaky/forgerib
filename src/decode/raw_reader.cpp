@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <iomanip>
 
 namespace glimmer {
 
@@ -9,12 +10,14 @@ RawReader::RawReader(
 	const char* raw_path,
 	const char* data_name,
 	const int run,
+	const int crate,
 	const int module,
 	const int rate
 )
 : raw_path_(raw_path)
 , data_name_(data_name)
 , run_(run)
+, crate_id_(crate)
 , module_(module)
 , rate_(rate) {
 	handle_.open(RawFileName(), std::ios::binary);
@@ -24,6 +27,88 @@ RawReader::~RawReader() {
 	if (handle_.is_open()) handle_.close();
 }
 
+bool SpecialHeader(const unsigned int *data) {
+	unsigned int event_length = (data[0] >> 17) & 0x3fff;
+	unsigned int header_length = (data[0] >> 12) & 0x1f;
+	unsigned int trace_length = (data[3] >> 16) & 0x7fff;
+	if (event_length == 4 && header_length == 12 && trace_length == 0) {
+		return true;
+	}
+	return false;
+}
+
+bool ValidateEvent(
+	const unsigned int *data,
+	int crate_id,
+	int slot_id
+) {
+	int peek_crate = int((data[0] >> 8) & 0xf);
+	int peek_slot = int((data[0] >> 4) & 0xf);
+	if (crate_id != peek_crate || slot_id != peek_slot) {
+		// fprintf(
+		// 	stderr,
+		// 	"\nWarning: Get bad header: %08x %08x %08x %08x\n",
+		// 	data[0], data[1], data[2], data[3]
+		// );
+		// std::cerr << "Invalid crate " << peek_crate << ", or slot " << slot_id << "\n";
+		return false;
+	}
+	unsigned int event_length = (data[0] >> 17) & 0x3fff;
+	unsigned int header_length = (data[0] >> 12) & 0x1f;
+	unsigned int trace_length = (data[3] >> 16) & 0x7fff;
+	if ((event_length - header_length)*2 != trace_length) {
+		// fprintf(
+		// 	stderr,
+		// 	"\nWarning: Get bad header: %08x %08x %08x %08x\n",
+		// 	data[0], data[1], data[2], data[3]
+		// );
+		// std::cerr << "Invalid length: " << header_length << ", " << event_length << ", " << trace_length << "\n";
+		return false;
+	}
+	return true;
+}
+
+bool ValidateEvents(
+	std::ifstream &fin,
+	int crate_id,
+	int slot_id,
+	int count = 5
+) {
+	auto origin_pos = fin.tellg();
+	bool fail = false;
+	unsigned int data[4];
+	for (int i = 0; i < count && fin.good(); ++i) {
+		fin.read((char*)data, 16);
+		if (fin.gcount() < 16) {
+			fail = true;
+			break;
+		}
+		if (!ValidateEvent(data, crate_id, slot_id)) {
+			fail = true;
+			break;
+		}
+	}
+	fin.seekg(origin_pos);
+	return !fail;
+}
+
+size_t SearchGoodEvent(
+	std::ifstream &fin,
+	int crate_id,
+	int slot_id
+) {
+	fin.seekg(4, std::ios::cur);
+	size_t offset = 4;
+	while (!ValidateEvents(fin, crate_id, slot_id)) {
+		if (!fin.good()) return 0;
+		fin.seekg(4, std::ios::cur);
+		offset += 4;
+		// printf("Jump %lu.\n", offset);
+		// if (offset >= 100) exit(-1);
+	}
+	return offset;
+}
+
 int RawReader::Read(
 	DecodeEvent *event,
 	RawEnergySum **sum,
@@ -31,20 +116,28 @@ int RawReader::Read(
 	RawExternalTime **ext,
 	DecodeTraces *trace
 ) {
-	// if (!handle_.good()) {
-	// 	std::cout << "Module " << module_ << " not good." << std::endl;
-	// 	event->used = true;
-	// 	return 0;
-	// }
-
 	// read header
 	handle_.read((char*)&header_, sizeof(RawHeader));
-	//if (header_.data[0] == 0) {
-		//std::cout << "Found empty word.\n";
-		//handle_.seekg(-12, std::ios::cur);
-	//}
+	// touch the end of the file
 	std::streamsize bytes = handle_.gcount();
 	if (bytes != 16) return bytes;
+
+	if (SpecialHeader(header_.data)) {
+		header_.data[0] &= 0xffff7fff;
+	}
+
+	if (!ValidateEvent(header_.data, crate_id_, module_+2)) {
+		fprintf(
+			stderr,
+			"\nWarning: Get bad header at %llu: %08x %08x %08x %08x\n",
+			(unsigned long long)handle_.tellg(),
+			header_.data[0], header_.data[1], header_.data[2], header_.data[3]
+		);
+		int jump_bytes = SearchGoodEvent(handle_, crate_id_, module_+2);
+		if (jump_bytes == 0) return 0;
+		std::cout << "Warning: Restore data after jump " << jump_bytes << " bytes.\n";
+		handle_.read((char*)&header_, sizeof(RawHeader));
+	}
 
 	// get event length and increase offset
 	int event_length = (header_.data[0] >> 17) & 0x3fff;
@@ -89,13 +182,6 @@ int RawReader::Read(
 	event->used = false;
 
 	int header_length = (header_.data[0] >> 12) & 0x1f;
-	int trace_length = (header_.data[3] >> 16) & 0x7fff;
-	if (event_length - header_length != trace_length/2) {
-		std::cout << "header " << header_length << ", event " << event_length << ", trace " << trace_length << "\n";
-		//header_length = event_length - trace_length/2;
-		return 16;
-	}
-
 	// read body
 	if (header_length > 4 && ((header_length-4)&1)==0 && ((header_length-4)>>4)==0) {
 		handle_.read((char*)body_, (header_length-4)*4);
@@ -139,6 +225,7 @@ int RawReader::Read(
 	}
 
 	// read traces
+	int trace_length = (header_.data[3] >> 16) & 0x7fff;
 	int trace_out_of_range = header_.data[3] >> 31;
 	if (trace) {
 		trace->length = trace_length;

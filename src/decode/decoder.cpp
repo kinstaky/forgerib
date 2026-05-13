@@ -7,6 +7,7 @@ namespace glimmer {
 Decoder::Decoder(
 	const int num,
 	const int run,
+	const int crate,
 	const std::vector<int> &module,
 	const std::vector<int> &rate,
 	const char *raw_path,
@@ -15,7 +16,7 @@ Decoder::Decoder(
 	total_size_ = 0;
 	for (int i = 0; i < num; ++i) {
 		readers_.push_back(std::make_unique<RawReader>(
-			raw_path, prefix, run, module[i], rate[i]
+			raw_path, prefix, run, crate, module[i], rate[i]
 		));
 		events_.push_back(DecodeEvent());
 		events_[i].used = true;

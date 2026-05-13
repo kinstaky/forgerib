@@ -27,15 +27,19 @@ RawReader::~RawReader() {
 	if (handle_.is_open()) handle_.close();
 }
 
-bool SpecialHeader(const unsigned int *data) {
+void CorrectSpecialHeader(unsigned int *data) {
 	unsigned int event_length = (data[0] >> 17) & 0x3fff;
 	unsigned int header_length = (data[0] >> 12) & 0x1f;
 	unsigned int trace_length = (data[3] >> 16) & 0x7fff;
 	if (event_length == 4 && header_length == 12 && trace_length == 0) {
-		return true;
+		data[0] &= 0xffff7fff;
 	}
-	return false;
+
+	if ((data[2] & 0x8000) == 0x8000) {
+		data[2] &= 0xffff7fff;
+	}
 }
+
 
 bool ValidateEvent(
 	const unsigned int *data,
@@ -122,9 +126,7 @@ int RawReader::Read(
 	std::streamsize bytes = handle_.gcount();
 	if (bytes != 16) return bytes;
 
-	if (SpecialHeader(header_.data)) {
-		header_.data[0] &= 0xffff7fff;
-	}
+	CorrectSpecialHeader(header_.data);
 
 	if (!ValidateEvent(header_.data, crate_id_, module_+2)) {
 		fprintf(

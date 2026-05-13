@@ -48,11 +48,9 @@ void InsertHit(
 
 void FillHit(const RawDssdEvent &raw, DssdEvent &dssd) {
 	if (raw.side == kDssdSideFront) {
-		if (raw.strip < 16) return;
 		if (raw.energy < 150) return;
 		InsertHit(raw.strip, raw.energy, raw.time, dssd.front_num, dssd.front_strip, dssd.front_energy, dssd.front_time);
 	} else if (raw.side == kDssdSideBack) {
-		return;
 		if (raw.energy < 200) return;
 		InsertHit(raw.strip, raw.energy, raw.time, dssd.back_num, dssd.back_strip, dssd.back_energy, dssd.back_time);
 	}
@@ -119,6 +117,11 @@ int ForgeWithTrigger(
 			}
 		}
 		if (min_time > window) continue;
+		// printf(
+		// 	"Side: %d, strip: %d, time: %f, entry %ld, tofill %ld, slot_fn %d, slot_bn %d\n",
+		// 	raw.side, raw.strip, raw.time, min_time_entry, tofill_entry,
+		// 	slots[min_time_entry%kSlotNum].front_num, slots[min_time_entry%kSlotNum].back_num
+		// );
 		if (min_time_entry < tofill_entry) continue;
 		if (min_time_entry - tofill_entry >= kSlotNum) {
 			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {

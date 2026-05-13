@@ -47,6 +47,7 @@ void InsertHit(
 
 void FillHit(const RawDssdEvent &raw, DssdEvent &dssd) {
 	if (raw.side == kDssdSideFront) {
+		if (raw.energy < 150) return;
 		InsertHit(
 			raw.strip,
 			raw.energy,
@@ -57,6 +58,7 @@ void FillHit(const RawDssdEvent &raw, DssdEvent &dssd) {
 			dssd.front_time
 		);
 	} else if (raw.side == kDssdSideBack) {
+		if (raw.energy < 400) return;
 		InsertHit(
 			raw.strip,
 			raw.energy,
@@ -116,7 +118,7 @@ int ForgeWithTrigger(
 				++entry;
 				continue;
 			}
-			if (raw.time < ref_time + window) {
+			if (raw.time <= ref_time + window) {
 				forge_window.Fill(raw.time - ref_time);
 				FillHit(raw, dssd);
 				++entry;

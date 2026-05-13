@@ -1,0 +1,202 @@
+#include "include/forge/forge_t0d3.h"
+
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+
+#include <TFile.h>
+#include <TH1F.h>
+#include <TTree.h>
+
+#include "include/event/forge/dssd_event.h"
+#include "include/event/raw/raw_dssd_event.h"
+
+namespace glimmer {
+
+namespace {
+
+void ResetDssdEvent(DssdEvent &dssd) {
+	dssd.front_num = 0;
+	dssd.back_num = 0;
+}
+
+void InsertHit(
+	int strip,
+	int energy,
+	double time,
+	int &num,
+	int strips[8],
+	double energies[8],
+	double times[8]
+) {
+	int pos = 0;
+	while (pos < num && energies[pos] >= energy) ++pos;
+	if (pos >= 8) return;
+	int limit = std::min(num, 7);
+	for (int i = limit; i > pos; --i) {
+		strips[i] = strips[i-1];
+		energies[i] = energies[i-1];
+		times[i] = times[i-1];
+	}
+	strips[pos] = strip;
+	energies[pos] = energy;
+	times[pos] = time;
+	if (num < 8) ++num;
+}
+
+void FillHit(const RawDssdEvent &raw, DssdEvent &dssd) {
+	if (raw.side == kDssdSideFront) {
+		if (raw.strip < 16) return;
+		if (raw.energy < 150) return;
+		InsertHit(raw.strip, raw.energy, raw.time, dssd.front_num, dssd.front_strip, dssd.front_energy, dssd.front_time);
+	} else if (raw.side == kDssdSideBack) {
+		return;
+		if (raw.energy < 200) return;	
+		InsertHit(raw.strip, raw.energy, raw.time, dssd.back_num, dssd.back_strip, dssd.back_energy, dssd.back_time);
+	}
+}
+
+int ForgeWithTrigger(
+	const std::vector<double> &trigger_time,
+	const char *path,
+	const char *output_path,
+	const double window,
+	bool report
+) {
+	TFile opf(output_path, "recreate");
+	TH1F forge_window("fw", "forge window", 200, -window, window);
+	TTree opt("tree", "forged t0d3");
+	DssdEvent dssd;
+	SetupOutput(&opt, dssd);
+
+	TFile ipf(path, "read");
+	TTree *ipt = (TTree*)ipf.Get("tree");
+	if (!ipt) {
+		std::cerr << "Error: Get tree from " << path << " failed.\n";
+		return -1;
+	}
+	RawDssdEvent raw;
+	SetupInput(ipt, raw);
+
+	size_t total = trigger_time.size();
+	size_t last_percentage = 0;
+	if (report) {
+		printf("Forging T0D3 with trigger   0%%");
+		fflush(stdout);
+	}
+	long long entry = 0;
+	for (size_t i = 0; i < trigger_time.size(); ++i) {
+		if (report && i * 100 / total > last_percentage) {
+			last_percentage = i * 100 / total;
+			printf("\b\b\b\b%3lu%%", last_percentage);
+			fflush(stdout);
+		}
+		const double &ref_time = trigger_time[i];
+		ResetDssdEvent(dssd);
+		while (entry < ipt->GetEntriesFast()) {
+			ipt->GetEntry(entry);
+			if (!raw.cv) {
+				++entry;
+				continue;
+			}
+			if (raw.time < ref_time - window) {
+				++entry;
+				continue;
+			}
+			if (raw.time <= ref_time + window) {
+				forge_window.Fill(raw.time - ref_time);
+				FillHit(raw, dssd);
+				++entry;
+				continue;
+			}
+			break;
+		}
+		opt.Fill();
+	}
+	if (report) printf("\b\b\b\b100%%\n");
+
+	opf.cd();
+	forge_window.Write();
+	opt.Write();
+	ipf.Close();
+	opf.Close();
+	return 0;
+}
+
+int ForgeWithoutTrigger(
+	const char *path,
+	const char *output_path,
+	const double window,
+	bool report
+) {
+	TFile opf(output_path, "recreate");
+	TH1F forge_window("fw", "forge window", 200, -window, window);
+	TTree opt("tree", "forged t0d3");
+	DssdEvent dssd;
+	SetupOutput(&opt, dssd);
+
+	TFile ipf(path, "read");
+	TTree *ipt = (TTree*)ipf.Get("tree");
+	if (!ipt) {
+		std::cerr << "Error: Get tree from " << path << " failed.\n";
+		return -1;
+	}
+	RawDssdEvent raw;
+	SetupInput(ipt, raw);
+
+	ResetDssdEvent(dssd);
+	double ref_time = -1.0;
+	long long total_entries = ipt->GetEntriesFast();
+	long long last_percentage = 0;
+	if (report) {
+		printf("Forging T0D3 without trigger   0%%");
+		fflush(stdout);
+	}
+	for (long long entry = 0; entry < total_entries; ++entry) {
+		if (report && entry * 100ll / total_entries > last_percentage) {
+			last_percentage = entry * 100ll / total_entries;
+			printf("\b\b\b\b%3lld%%", last_percentage);
+			fflush(stdout);
+		}
+		ipt->GetEntry(entry);
+		if (!raw.cv) continue;
+		if (dssd.front_num == 0 && dssd.back_num == 0) {
+			FillHit(raw, dssd);
+			ref_time = raw.time;
+		} else if (std::fabs(raw.time - ref_time) < window) {
+			forge_window.Fill(raw.time - ref_time);
+			FillHit(raw, dssd);
+		} else {
+			opt.Fill();
+			ResetDssdEvent(dssd);
+			FillHit(raw, dssd);
+			ref_time = raw.time;
+		}
+	}
+	if (dssd.front_num > 0 || dssd.back_num > 0) opt.Fill();
+	if (report) printf("\b\b\b\b100%%\n");
+
+	opf.cd();
+	forge_window.Write();
+	opt.Write();
+	ipf.Close();
+	opf.Close();
+	return 0;
+}
+
+} // namespace
+
+int ForgeT0d3(
+	const std::vector<double> &trigger_time,
+	const char *path,
+	const char *output_path,
+	const double window,
+	bool report
+) {
+	if (trigger_time.empty()) {
+		return ForgeWithoutTrigger(path, output_path, window, report);
+	}
+	return ForgeWithTrigger(trigger_time, path, output_path, window, report);
+}
+
+}

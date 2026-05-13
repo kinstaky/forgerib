@@ -19,22 +19,32 @@ std::string GetRequired(const toml::table &tbl, const char *key) {
 	return tbl[key].as_string()->get();
 }
 
-constexpr int kD4DecoderNum = 1;
-constexpr int kD4Modules[kD4DecoderNum] = {0};
-constexpr int kD4Rates[kD4DecoderNum] = {100};
+constexpr int kD4DecoderNum = 5;
+constexpr int kD4Modules[kD4DecoderNum] = {1, 2, 3, 4, 6};
+constexpr int kD4Rates[kD4DecoderNum] = {100, 100, 100, 100, 100};
 
 bool MapT0d4Event(const glimmer::DecodeEvent &decode, glimmer::RawDssdEvent &dssd) {
-	// Placeholder mapping copied as framework only.
-	switch (decode.channel) {
-	case 0:
+	if (decode.module == 1) {
+		if (decode.channel >= 12) return false;
+		dssd.side= glimmer::kDssdSideFront;
+		dssd.strip = decode.channel;
+	} else if (decode.module == 2) {
+		if (decode.channel == 0) return false;
 		dssd.side = glimmer::kDssdSideFront;
-		dssd.strip = 0;
-		break;
-	case 1:
+		dssd.strip = (decode.module - 1) * 16 + decode.channel;
+	} else if (decode.module == 3 || decode.module == 4) {
 		dssd.side = glimmer::kDssdSideBack;
-		dssd.strip = 0;
-		break;
-	default:
+		dssd.strip = (decode.module - 3) * 16 + decode.channel;
+	} else if (decode.module == 6) {
+		dssd.side = glimmer::kDssdSideFront;
+		if (decode.channel == 7) {
+			dssd.strip = 16;
+		} else if (decode.channel >= 12 && decode.channel <= 15) {
+			dssd.strip = decode.channel;
+		} else {
+			return false;
+		}
+	} else {
 		return false;
 	}
 	dssd.energy = decode.energy;
@@ -89,8 +99,8 @@ int main(int argc, char **argv) {
 	const int run = atoi(argv[1]);
 
 	toml::table tbl = toml::parse_file("config.toml");
-	std::string raw_path = GetRequired(tbl, "raw_xia1_path");
-	std::string raw_prefix = GetRequired(tbl, "raw_xia1_prefix");
+	std::string raw_path = GetRequired(tbl, "raw_xia2_path");
+	std::string raw_prefix = GetRequired(tbl, "raw_xia2_prefix");
 	std::string workspace = GetRequired(tbl, "workspace");
 
 	DecodeT0d4(

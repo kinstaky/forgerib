@@ -29,7 +29,7 @@ void UpdateTriggerEvent(
 	if (raw.type < 0 || raw.type >= 6) return;
 	trigger.flag |= 1 << raw.type;
 	trigger.valid[raw.type] = true;
-	trigger.time[raw.type] = raw.time - ref_time;
+	trigger.time[raw.type] = raw.time;
 }
 
 } // namespace
@@ -62,6 +62,9 @@ int ForgeTrigger(
 	RawTriggerEvent raw;
 	SetupInput(ipt, raw);
 
+	RawTriggerEvent buffer[10];
+	size_t buffer_top = 0;
+	size_t buffer_size = 0;
 	size_t total = trigger_time.size();
 	size_t last_percentage = 0;
 	if (report) {
@@ -77,6 +80,9 @@ int ForgeTrigger(
 		}
 		const double &ref_time = trigger_time[i];
 		ResetTriggerEvent(trigger);
+		//while (buffer_top < buffer_size) {
+		//	if (buffer[buffer_top])
+		//}
 		while (entry < ipt->GetEntriesFast()) {
 			ipt->GetEntry(entry);
 			if (!raw.cv) {
@@ -87,7 +93,7 @@ int ForgeTrigger(
 				++entry;
 				continue;
 			}
-			if (raw.time < ref_time + window) {
+			if (raw.time <= ref_time + window) {
 				forge_window.Fill(raw.time - ref_time);
 				UpdateTriggerEvent(raw, ref_time, trigger);
 				++entry;

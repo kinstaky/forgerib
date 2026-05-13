@@ -24,7 +24,7 @@ Decoder::Decoder(
 	}
 	finished_num_ = 0;
 	read_size_ = 0;
-	last_percentage_ = -1;
+	last_percentage_ = 0;
 }
 
 
@@ -43,7 +43,7 @@ DecodeEvent* Decoder::GetEvent(bool report) {
 				int bytes = readers_[m]->Read(events_.data()+m);
 				if (bytes >= 16) {
 					read_size_ += bytes;
-				} else {
+				} else if (bytes == 0) {
 					module_finish_[m] = true;
 					finished_num_ += 1;
 				}
@@ -56,7 +56,6 @@ DecodeEvent* Decoder::GetEvent(bool report) {
 		size_t min_index = 100;
 		for (size_t m = 0; m < readers_.size(); ++m) {
 			if (events_[m].used) continue;
-			// std::cout << "  Module " << module[i] << ", ts " << events[i].timestamp << "\n";
 			if (min_time < 0 || events_[m].time < min_time) {
 				min_time = events_[m].timestamp;
 				min_index = m;

@@ -6,7 +6,11 @@ target_link_libraries(
 	forge_ppac
 	forge_t0d1
 	forge_t0d2
+	forge_t0d3
+	forge_t0d4
 	forge_beam
 	forge_trigger
+	forge_ssd
+	forge_csi
 	raw_trigger_event
 )

@@ -63,7 +63,7 @@ int ForgeWithTrigger(
 				++entry;
 				continue;
 			}
-			if (raw.time < ref_time + window) {
+			if (raw.time <= ref_time + window) {
 				forge_window.Fill(raw.time - ref_time);
 				if (
 					(ppac.flag & (1 << bit)) == 0

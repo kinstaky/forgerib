@@ -19,22 +19,21 @@ std::string GetRequired(const toml::table &tbl, const char *key) {
 	return tbl[key].as_string()->get();
 }
 
-constexpr int kD3DecoderNum = 1;
-constexpr int kD3Modules[kD3DecoderNum] = {0};
-constexpr int kD3Rates[kD3DecoderNum] = {100};
+constexpr int kD3DecoderNum = 4;
+constexpr int kD3Modules[kD3DecoderNum] = {0, 1, 2, 3};
+constexpr int kD3Rates[kD3DecoderNum] = {250, 100, 250, 500};
+//constexpr int kD3DecoderNum = 1;
+//constexpr int kD3Modules[kD3DecoderNum] = {0};
+//constexpr int kD3Rates[kD3DecoderNum] = {250};
 
 bool MapT0d3Event(const glimmer::DecodeEvent &decode, glimmer::RawDssdEvent &dssd) {
-	// Placeholder mapping copied as framework only.
-	switch (decode.channel) {
-	case 0:
+	if (decode.module == 0 || decode.module == 1) {
 		dssd.side = glimmer::kDssdSideFront;
-		dssd.strip = 0;
-		break;
-	case 1:
+		dssd.strip = decode.module * 16 + decode.channel;
+	} else if (decode.module == 2 || decode.module == 3) {
 		dssd.side = glimmer::kDssdSideBack;
-		dssd.strip = 0;
-		break;
-	default:
+		dssd.strip = (decode.module - 2) * 16 + decode.channel;
+	} else {
 		return false;
 	}
 	dssd.energy = decode.energy;

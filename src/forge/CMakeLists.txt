@@ -16,3 +16,15 @@ target_link_libraries(forge_beam PUBLIC beam_event raw_beam_event)
 
 add_library(forge_trigger forge_trigger.cpp)
 target_link_libraries(forge_trigger PUBLIC trigger_event raw_trigger_event)
+
+add_library(forge_ssd forge_ssd.cpp)
+target_link_libraries(forge_ssd PUBLIC silicon_event raw_ssd_event)
+
+add_library(forge_csi forge_csi.cpp)
+target_link_libraries(forge_csi PUBLIC csi_event raw_csi_event)
+
+add_library(forge_t0d3 forge_t0d3.cpp)
+target_link_libraries(forge_t0d3 PUBLIC dssd_event raw_dssd_event)
+
+add_library(forge_t0d4 forge_t0d4.cpp)
+target_link_libraries(forge_t0d4 PUBLIC dssd_event raw_dssd_event)

@@ -44,9 +44,32 @@ bool MapT0sEvent(
 	const glimmer::DecodeEvent &decode,
 	glimmer::RawSiliconEvent &silicon
 ) {
-	// Placeholder mapping: module 6 is routed to T0S.
 	if (decode.module != 6) return false;
-	if (decode.channel != 7) return false;
+	if (decode.channel != 8) return false;
+	silicon.energy = decode.energy;
+	silicon.time = decode.time;
+	silicon.cv = decode.cfd_valid;
+	return true;
+}
+
+bool MapT1suEvent(
+	const glimmer::DecodeEvent &decode,
+	glimmer::RawSiliconEvent &silicon
+) {
+	if (decode.module != 6) return false;
+	if (decode.channel != 10) return false;
+	silicon.energy = decode.energy;
+	silicon.time = decode.time;
+	silicon.cv = decode.cfd_valid;
+	return true;
+}
+
+bool MapT1sdEvent(
+	const glimmer::DecodeEvent &decode,
+	glimmer::RawSiliconEvent &silicon
+) {
+	if (decode.module != 6) return false;
+	if (decode.channel != 9) return false;
 	silicon.energy = decode.energy;
 	silicon.time = decode.time;
 	silicon.cv = decode.cfd_valid;
@@ -64,6 +87,8 @@ void DecodeOthers(
 ) {
 	TString csi_filename = TString::Format("%s/decode/csi_%04d.root", workspace, run);
 	TString t0s_filename = TString::Format("%s/decode/t0s_%04d.root", workspace, run);
+	TString t1su_filename = TString::Format("%s/decode/t1su_%04d.root", workspace, run);
+	TString t1sd_filename = TString::Format("%s/decode/t1sd_%04d.root", workspace, run);
 
 	TFile csi_file(csi_filename, "recreate");
 	TTree csi_tree("tree", "decode");
@@ -74,6 +99,16 @@ void DecodeOthers(
 	TTree t0s_tree("tree", "decode");
 	glimmer::RawSiliconEvent t0s;
 	glimmer::SetupOutput(&t0s_tree, t0s);
+
+	TFile t1su_file(t1su_filename, "recreate");
+	TTree t1su_tree("tree", "decode");
+	glimmer::RawSiliconEvent t1su;
+	glimmer::SetupOutput(&t1su_tree, t1su);
+
+	TFile t1sd_file(t1sd_filename, "recreate");
+	TTree t1sd_tree("tree", "decode");
+	glimmer::RawSiliconEvent t1sd;
+	glimmer::SetupOutput(&t1sd_tree, t1sd);
 
 	if (report) {
 		printf("Decoding other   0%%");
@@ -91,6 +126,10 @@ void DecodeOthers(
 			csi_tree.Fill();
 		} else if (MapT0sEvent(*event, t0s)) {
 			t0s_tree.Fill();
+		} else if (MapT1suEvent(*event, t1su)) {
+			t1su_tree.Fill();
+		} else if (MapT1sdEvent(*event, t1sd)) {
+			t1sd_tree.Fill();
 		}
 	}
 	if (report) printf("\b\b\b\b100%%\n");
@@ -102,6 +141,14 @@ void DecodeOthers(
 	t0s_file.cd();
 	t0s_tree.Write();
 	t0s_file.Close();
+
+	t1su_file.cd();
+	t1su_tree.Write();
+	t1su_file.Close();
+
+	t1sd_file.cd();
+	t1sd_tree.Write();
+	t1sd_file.Close();
 }
 
 int main(int argc, char **argv) {

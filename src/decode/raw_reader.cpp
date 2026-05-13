@@ -39,6 +39,10 @@ int RawReader::Read(
 
 	// read header
 	handle_.read((char*)&header_, sizeof(RawHeader));
+	//if (header_.data[0] == 0) {
+		//std::cout << "Found empty word.\n";
+		//handle_.seekg(-12, std::ios::cur);
+	//}
 	std::streamsize bytes = handle_.gcount();
 	if (bytes != 16) return bytes;
 
@@ -85,9 +89,15 @@ int RawReader::Read(
 	event->used = false;
 
 	int header_length = (header_.data[0] >> 12) & 0x1f;
+	int trace_length = (header_.data[3] >> 16) & 0x7fff;
+	if (event_length - header_length != trace_length/2) {
+		std::cout << "header " << header_length << ", event " << event_length << ", trace " << trace_length << "\n";
+		//header_length = event_length - trace_length/2;
+		return 16;
+	}
 
 	// read body
-	if (header_length > 4) {
+	if (header_length > 4 && ((header_length-4)&1)==0 && ((header_length-4)>>4)==0) {
 		handle_.read((char*)body_, (header_length-4)*4);
 		const unsigned int *body_pos = body_;
 		bytes += handle_.gcount();
@@ -129,7 +139,6 @@ int RawReader::Read(
 	}
 
 	// read traces
-	int trace_length = (header_.data[3] >> 16) & 0x7fff;
 	int trace_out_of_range = header_.data[3] >> 31;
 	if (trace) {
 		trace->length = trace_length;

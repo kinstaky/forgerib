@@ -13,3 +13,11 @@ target_link_libraries(beam_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
 add_library(trigger_event trigger_event.cpp)
 target_include_directories(trigger_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(trigger_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
+
+add_library(silicon_event silicon_event.cpp)
+target_include_directories(silicon_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(silicon_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
+
+add_library(csi_event csi_event.cpp)
+target_include_directories(csi_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(csi_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)

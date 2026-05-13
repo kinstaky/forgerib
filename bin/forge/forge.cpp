@@ -4,9 +4,13 @@
 
 #include "include/forge/colossus.h"
 #include "include/forge/forge_beam.h"
+#include "include/forge/forge_csi.h"
 #include "include/forge/forge_ppac.h"
+#include "include/forge/forge_ssd.h"
 #include "include/forge/forge_t0d1.h"
 #include "include/forge/forge_t0d2.h"
+#include "include/forge/forge_t0d3.h"
+#include "include/forge/forge_t0d4.h"
 #include "include/forge/forge_trigger.h"
 #include "include/event/raw/raw_trigger_event.h"
 
@@ -96,7 +100,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector to forge: ppac, t0d1, t0d2, beam, trigger",
+			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, csi, beam, trigger",
 			cxxopts::value<std::vector<std::string>>()
 		);
 	options.parse_positional({"detectors"});
@@ -215,6 +219,150 @@ int main(int argc, char **argv) {
 				std::cerr << "Error: Froge t0d2 failed.\n";
 			} else {
 				std::cout << "Forge t0d2 success!\n";
+			}
+		} else if (det == "t0d3") {
+			TString input_path = TString::Format(
+				"%s/decode/t0d3_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t0d3_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT0d3(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t0d3 failed.\n";
+			} else {
+				std::cout << "Forge t0d3 success!\n";
+			}
+		} else if (det == "t0d4") {
+			TString input_path = TString::Format(
+				"%s/decode/t0d4_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t0d4_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT0d4(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t0d4 failed.\n";
+			} else {
+				std::cout << "Forge t0d4 success!\n";
+			}
+		} else if (det == "t0s") {
+			TString input_path = TString::Format(
+				"%s/decode/t0s_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t0s_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT0s(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t0s failed.\n";
+			} else {
+				std::cout << "Forge t0s success!\n";
+			}
+		} else if (det == "t1su") {
+			TString input_path = TString::Format(
+				"%s/decode/t1su_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t1su_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT1su(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t1su failed.\n";
+			} else {
+				std::cout << "Forge t1su success!\n";
+			}
+		} else if (det == "t1sd") {
+			TString input_path = TString::Format(
+				"%s/decode/t1sd_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/t1sd_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeT1sd(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge t1sd failed.\n";
+			} else {
+				std::cout << "Forge t1sd success!\n";
+			}
+		} else if (det == "csi") {
+			TString input_path = TString::Format(
+				"%s/decode/csi_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/csi_%s%04d.root",
+				workspace.c_str(),
+				use_trigger ? "" : "nt_",
+				run
+			);
+			int result = glimmer::ForgeCsi(
+				triggers,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge csi failed.\n";
+			} else {
+				std::cout << "Forge csi success!\n";
 			}
 		} else if (det == "beam") {
 			TString input_path = TString::Format(

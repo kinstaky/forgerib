@@ -4,7 +4,7 @@
 
 #include "include/forge/colossus.h"
 #include "include/forge/forge_beam.h"
-#include "include/forge/forge_csi.h"
+#include "include/forge/forge_t0csi.h"
 #include "include/forge/forge_ppac.h"
 #include "include/forge/forge_ssd.h"
 #include "include/forge/forge_t0d1.h"
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, csi, beam, trigger",
+			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, trigger",
 			cxxopts::value<std::vector<std::string>>()
 		);
 	options.parse_positional({"detectors"});
@@ -340,19 +340,19 @@ int main(int argc, char **argv) {
 			} else {
 				std::cout << "Forge t1sd success!\n";
 			}
-		} else if (det == "csi") {
+		} else if (det == "t0csi") {
 			TString input_path = TString::Format(
-				"%s/decode/csi_%04d.root",
+				"%s/decode/t0csi_%04d.root",
 				workspace.c_str(),
 				run
 			);
 			TString output_path = TString::Format(
-				"%s/forge/csi_%s%04d.root",
+				"%s/forge/t0csi_%s%04d.root",
 				workspace.c_str(),
 				use_trigger ? "" : "nt_",
 				run
 			);
-			int result = glimmer::ForgeCsi(
+			int result = glimmer::ForgeT0Csi(
 				triggers,
 				input_path.Data(),
 				output_path.Data(),
@@ -360,9 +360,9 @@ int main(int argc, char **argv) {
 				true
 			);
 			if (result) {
-				std::cerr << "Error: Froge csi failed.\n";
+				std::cerr << "Error: Froge t0csi failed.\n";
 			} else {
-				std::cout << "Forge csi success!\n";
+				std::cout << "Forge t0csi success!\n";
 			}
 		} else if (det == "beam") {
 			TString input_path = TString::Format(

@@ -85,15 +85,15 @@ void DecodeOthers(
 	int run,
 	bool report
 ) {
-	TString csi_filename = TString::Format("%s/decode/csi_%04d.root", workspace, run);
+	TString t0csi_filename = TString::Format("%s/decode/t0csi_%04d.root", workspace, run);
 	TString t0s_filename = TString::Format("%s/decode/t0s_%04d.root", workspace, run);
 	TString t1su_filename = TString::Format("%s/decode/t1su_%04d.root", workspace, run);
 	TString t1sd_filename = TString::Format("%s/decode/t1sd_%04d.root", workspace, run);
 
-	TFile csi_file(csi_filename, "recreate");
-	TTree csi_tree("tree", "decode");
+	TFile t0csi_file(t0csi_filename, "recreate");
+	TTree t0csi_tree("tree", "decode");
 	glimmer::RawCsiEvent csi;
-	glimmer::SetupOutput(&csi_tree, csi);
+	glimmer::SetupOutput(&t0csi_tree, csi);
 
 	TFile t0s_file(t0s_filename, "recreate");
 	TTree t0s_tree("tree", "decode");
@@ -123,7 +123,7 @@ void DecodeOthers(
 		event = decoder.GetEvent(report)
 	) {
 		if (MapCsiEvent(*event, csi)) {
-			csi_tree.Fill();
+			t0csi_tree.Fill();
 		} else if (MapT0sEvent(*event, t0s)) {
 			t0s_tree.Fill();
 		} else if (MapT1suEvent(*event, t1su)) {
@@ -134,9 +134,9 @@ void DecodeOthers(
 	}
 	if (report) printf("\b\b\b\b100%%\n");
 
-	csi_file.cd();
-	csi_tree.Write();
-	csi_file.Close();
+	t0csi_file.cd();
+	t0csi_tree.Write();
+	t0csi_file.Close();
 
 	t0s_file.cd();
 	t0s_tree.Write();

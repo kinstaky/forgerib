@@ -15,6 +15,25 @@ namespace glimmer {
 
 constexpr size_t kSlotNum = 1000;
 
+void ResetPpacEvent(PpacEvent &ppac) {
+	ppac.flag = 0;
+	for (int i = 0; i < 15; ++i) {
+		ppac.valid[i] = false;
+		ppac.time[i] = 0.0;
+		ppac.energy[i] = 0;
+	}
+}
+
+void SetPpacEvent(const RawPpacEvent &raw, PpacEvent &ppac) {
+	int bit = raw.channel == 4
+		? raw.index + 12
+		: raw.index*4 + raw.channel;
+	ppac.flag |= 1 << bit;
+	ppac.valid[bit] = true;
+	ppac.time[bit] = raw.time;
+	ppac.energy[bit] = raw.energy;
+}
+
 int ForgeWithTrigger(
 	const std::vector<double> &trigger_time,
 	const char *path,
@@ -40,10 +59,7 @@ int ForgeWithTrigger(
 
 	PpacEvent slots[kSlotNum];
 	for (size_t i = 0; i < kSlotNum; ++i) {
-		slots[i].flag = 0;
-		for (int j = 0; j < 15; ++j) {
-			slots[i].valid[j] = false;
-		}
+		ResetPpacEvent(slots[i]);
 	}
 	size_t tofill_entry = 0;
 
@@ -61,9 +77,6 @@ int ForgeWithTrigger(
 		}
 		ipt->GetEntry(entry);
 		if (!raw.cv) continue;
-		int bit = raw.channel == 4
-			? raw.index + 12
-			: raw.index*4 + raw.channel;
 		// search trigger
 		double min_time = 2*window;
 		size_t min_time_entry = 0;
@@ -89,17 +102,11 @@ int ForgeWithTrigger(
 			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {
 				ppac = slots[fill%kSlotNum];
 				opt.Fill();
-				slots[fill%kSlotNum].flag = 0;
-				for (size_t i = 0; i < 15; ++i) {
-					slots[fill%kSlotNum].valid[i] = 0;
-				}
+				ResetPpacEvent(slots[fill%kSlotNum]);
 			}
 			tofill_entry = min_time_entry - kSlotNum + 1;
 		}
-		slots[min_time_entry%kSlotNum].flag |= 1 << bit;
-		slots[min_time_entry%kSlotNum].valid[bit] = true;
-		slots[min_time_entry%kSlotNum].time[bit] = raw.time;
-		slots[min_time_entry%kSlotNum].energy[bit] = raw.energy;
+		SetPpacEvent(raw, slots[min_time_entry%kSlotNum]);
 	}
 	for (size_t fill = tofill_entry; fill < trigger_time.size(); ++fill) {
 		ppac = slots[fill%kSlotNum];
@@ -138,7 +145,7 @@ int ForgeWithoutTrigger(
 	RawPpacEvent raw;
 	SetupInput(ipt, raw);
 
-	ppac.flag = 0;
+	ResetPpacEvent(ppac);
 	double ref_time = -1.0;
 	long long total_entries = ipt->GetEntries();
 	long long last_percentage = 0;
@@ -154,29 +161,24 @@ int ForgeWithoutTrigger(
 		}
 		ipt->GetEntry(entry);
 		if (!raw.cv) continue;
-		int bit = raw.channel == 4
-			? raw.index + 12
-			: raw.index*4 + raw.channel;
 		if (ppac.flag == 0) {
-			ppac.flag |= 1 << bit;
-			ppac.time[bit] = raw.time;
-			ppac.energy[bit] = raw.energy;
+			SetPpacEvent(raw, ppac);
 			ref_time = raw.time;
 		} else if (fabs(raw.time - ref_time) < window) {
 			forge_window.Fill(raw.time - ref_time);
+			int bit = raw.channel == 4
+				? raw.index + 12
+				: raw.index*4 + raw.channel;
 			if (
 				(ppac.flag & (1 << bit)) == 0
 				|| raw.energy > ppac.energy[bit]
 			) {
-				ppac.flag |= 1 << bit;
-				ppac.time[bit] = raw.time;
-				ppac.energy[bit] = raw.energy;
+				SetPpacEvent(raw, ppac);
 			}
 		} else {
 			opt.Fill();
-			ppac.flag = 1 << bit;
-			ppac.time[bit] = raw.time;
-			ppac.energy[bit] = raw.energy;
+			ResetPpacEvent(ppac);
+			SetPpacEvent(raw, ppac);
 			ref_time = raw.time;
 		}
 	}

@@ -20,8 +20,8 @@ target_link_libraries(forge_trigger PUBLIC trigger_event raw_trigger_event)
 add_library(forge_ssd forge_ssd.cpp)
 target_link_libraries(forge_ssd PUBLIC silicon_event raw_ssd_event)
 
-add_library(forge_csi forge_csi.cpp)
-target_link_libraries(forge_csi PUBLIC csi_event raw_csi_event)
+add_library(forge_t0csi forge_t0csi.cpp)
+target_link_libraries(forge_t0csi PUBLIC csi_event raw_csi_event)
 
 add_library(forge_t0d3 forge_t0d3.cpp)
 target_link_libraries(forge_t0d3 PUBLIC dssd_event raw_dssd_event)

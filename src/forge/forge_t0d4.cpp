@@ -15,6 +15,8 @@ namespace glimmer {
 
 namespace {
 
+constexpr size_t kSlotNum = 1000;
+
 void ResetDssdEvent(DssdEvent &dssd) {
 	dssd.front_num = 0;
 	dssd.back_num = 0;
@@ -76,39 +78,58 @@ int ForgeWithTrigger(
 	RawDssdEvent raw;
 	SetupInput(ipt, raw);
 
-	size_t total = trigger_time.size();
-	size_t last_percentage = 0;
+	DssdEvent slots[kSlotNum];
+	for (size_t i = 0; i < kSlotNum; ++i) {
+		ResetDssdEvent(slots[i]);
+	}
+	size_t tofill_entry = 0;
+
+	long long total = ipt->GetEntriesFast();
+	long long last_percentage = 0;
 	if (report) {
 		printf("Forging T0D4 with trigger   0%%");
 		fflush(stdout);
 	}
-	long long entry = 0;
-	for (size_t i = 0; i < trigger_time.size(); ++i) {
-		if (report && i * 100 / total > last_percentage) {
-			last_percentage = i * 100 / total;
-			printf("\b\b\b\b%3lu%%", last_percentage);
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100 / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
 			fflush(stdout);
 		}
-		const double &ref_time = trigger_time[i];
-		ResetDssdEvent(dssd);
-		while (entry < ipt->GetEntriesFast()) {
-			ipt->GetEntry(entry);
-			if (!raw.cv) {
-				++entry;
-				continue;
+		ipt->GetEntry(entry);
+		if (!raw.cv) continue;
+		double min_time = 2*window;
+		size_t min_time_entry = 0;
+		for (
+			auto iter = std::lower_bound(
+				trigger_time.begin()+tofill_entry,
+				trigger_time.end(),
+				raw.time - window
+			);
+			iter != trigger_time.end();
+			++iter
+		) {
+			if (*iter > raw.time + window) break;
+			forge_window.Fill(raw.time - *iter);
+			if (std::fabs(*iter - raw.time) < min_time) {
+				min_time = std::fabs(*iter - raw.time);
+				min_time_entry = iter - trigger_time.begin();
 			}
-			if (raw.time < ref_time - window) {
-				++entry;
-				continue;
-			}
-			if (raw.time <= ref_time + window) {
-				forge_window.Fill(raw.time - ref_time);
-				FillHit(raw, dssd);
-				++entry;
-				continue;
-			}
-			break;
 		}
+		if (min_time > window) continue;
+		if (min_time_entry < tofill_entry) continue;
+		if (min_time_entry - tofill_entry >= kSlotNum) {
+			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {
+				dssd = slots[fill%kSlotNum];
+				opt.Fill();
+				ResetDssdEvent(slots[fill%kSlotNum]);
+			}
+			tofill_entry = min_time_entry - kSlotNum + 1;
+		}
+		FillHit(raw, slots[min_time_entry%kSlotNum]);
+	}
+	for (size_t fill = tofill_entry; fill < trigger_time.size(); ++fill) {
+		dssd = slots[fill%kSlotNum];
 		opt.Fill();
 	}
 	if (report) printf("\b\b\b\b100%%\n");

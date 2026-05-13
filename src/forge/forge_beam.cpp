@@ -1,5 +1,6 @@
 #include "include/forge/forge_beam.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -14,6 +15,8 @@ namespace glimmer {
 
 namespace {
 
+constexpr size_t kSlotNum = 1000;
+
 void ResetBeamEvent(BeamEvent &beam) {
 	beam.flag = 0;
 	beam.valid = false;
@@ -22,19 +25,14 @@ void ResetBeamEvent(BeamEvent &beam) {
 
 void UpdateBeamEvent(
 	const RawBeamEvent &raw,
-	BeamEvent &beam,
-	double type_time[3],
-	bool seen[3]
+	BeamEvent &beam
 ) {
 	if (raw.type < 0 || raw.type > 2) return;
-	beam.flag |= 1 << raw.type;
-	if (!seen[raw.type]) {
-		seen[raw.type] = true;
-		type_time[raw.type] = raw.time;
-	}
-	if (seen[kBeamT1] && seen[kBeamT2]) {
-		beam.valid = true;
-		beam.tof = type_time[kBeamT2] - type_time[kBeamT1];
+	if ((beam.flag & (1 << raw.type)) == 0) {
+		beam.flag |= 1 << raw.type;
+		if (raw.type == 0) beam.tof -= raw.time;
+		else if (raw.type == 1) beam.tof += raw.time;
+		if ((beam.flag & 0x3) == 0x3) beam.valid = true;
 	}
 }
 
@@ -60,41 +58,61 @@ int ForgeWithTrigger(
 	RawBeamEvent raw;
 	SetupInput(ipt, raw);
 
-	size_t total = trigger_time.size();
-	size_t last_percentage = 0;
+	BeamEvent slots[kSlotNum];
+	for (size_t i = 0; i < kSlotNum; ++i) {
+		ResetBeamEvent(slots[i]);
+	}
+	size_t tofill_entry = 0;
+
+	long long total = ipt->GetEntries();
+	long long last_percentage = 0;
 	if (report) {
 		printf("Forging beam with trigger   0%%");
 		fflush(stdout);
 	}
-	long long entry = 0;
-	for (size_t i = 0; i < trigger_time.size(); ++i) {
-		if (report && i * 100 / total > last_percentage) {
-			last_percentage = i * 100 / total;
-			printf("\b\b\b\b%3lu%%", last_percentage);
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100 / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
 			fflush(stdout);
 		}
-		const double &ref_time = trigger_time[i];
-		ResetBeamEvent(beam);
-		double type_time[3] = {0.0, 0.0, 0.0};
-		bool seen[3] = {false, false, false};
-		while (entry < ipt->GetEntriesFast()) {
-			ipt->GetEntry(entry);
-			if (!raw.cv) {
-				++entry;
-				continue;
+		ipt->GetEntry(entry);
+		if (!raw.cv) continue;
+		double min_time = 2*window;
+		size_t min_time_entry = 0;
+		for (
+			auto iter = std::lower_bound(
+				trigger_time.begin()+tofill_entry,
+				trigger_time.end(),
+				raw.time - window
+			);
+			iter != trigger_time.end();
+			++iter
+		) {
+			if (*iter > raw.time + window) break;
+			forge_window.Fill(raw.time - *iter);
+			if (std::fabs(*iter - raw.time) < min_time) {
+				min_time = std::fabs(*iter - raw.time);
+				min_time_entry = iter - trigger_time.begin();
 			}
-			if (raw.time < ref_time - window) {
-				++entry;
-				continue;
-			}
-			if (raw.time <= ref_time + window) {
-				forge_window.Fill(raw.time - ref_time);
-				UpdateBeamEvent(raw, beam, type_time, seen);
-				++entry;
-				continue;
-			}
-			break;
 		}
+		if (min_time > window) continue;
+		if (min_time_entry < tofill_entry) continue;
+		if (min_time_entry - tofill_entry >= kSlotNum) {
+			for (size_t fill = tofill_entry; fill <= min_time_entry-kSlotNum; ++fill) {
+				beam = slots[fill%kSlotNum];
+				opt.Fill();
+				ResetBeamEvent(slots[fill%kSlotNum]);
+			}
+			tofill_entry = min_time_entry - kSlotNum + 1;
+		}
+		UpdateBeamEvent(
+			raw,
+			slots[min_time_entry%kSlotNum]
+		);
+	}
+	for (size_t fill = tofill_entry; fill < trigger_time.size(); ++fill) {
+		beam = slots[fill%kSlotNum];
 		opt.Fill();
 	}
 	if (report) printf("\b\b\b\b100%%\n");
@@ -129,8 +147,6 @@ int ForgeWithoutTrigger(
 	SetupInput(ipt, raw);
 
 	ResetBeamEvent(beam);
-	double type_time[3] = {0.0, 0.0, 0.0};
-	bool seen[3] = {false, false, false};
 	double ref_time = -1.0;
 	long long total_entries = ipt->GetEntries();
 	long long last_percentage = 0;
@@ -147,21 +163,15 @@ int ForgeWithoutTrigger(
 		ipt->GetEntry(entry);
 		if (!raw.cv) continue;
 		if (beam.flag == 0) {
-			UpdateBeamEvent(raw, beam, type_time, seen);
+			UpdateBeamEvent(raw, beam);
 			ref_time = raw.time;
 		} else if (std::fabs(raw.time - ref_time) < window) {
 			forge_window.Fill(raw.time - ref_time);
-			UpdateBeamEvent(raw, beam, type_time, seen);
+			UpdateBeamEvent(raw, beam);
 		} else {
 			opt.Fill();
 			ResetBeamEvent(beam);
-			type_time[0] = 0.0;
-			type_time[1] = 0.0;
-			type_time[2] = 0.0;
-			seen[0] = false;
-			seen[1] = false;
-			seen[2] = false;
-			UpdateBeamEvent(raw, beam, type_time, seen);
+			UpdateBeamEvent(raw, beam);
 			ref_time = raw.time;
 		}
 	}

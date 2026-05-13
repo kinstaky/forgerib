@@ -11,6 +11,6 @@ target_link_libraries(
 	forge_beam
 	forge_trigger
 	forge_ssd
-	forge_csi
+	forge_t0csi
 	raw_trigger_event
 )

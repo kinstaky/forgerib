@@ -342,6 +342,27 @@ void FillPpacEvent(const VmeBranches &input, PpacEvent &event) {
 	}
 }
 
+bool HasTafdTrigger(const TafdEvent &event, int threshold) {
+	for (int i = 0; i < 6; ++i) {
+		if (!event.valid[i]) continue;
+		if (event.front_energy[i] > threshold && event.back_energy[i] > threshold) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool HasCsiTrigger(const CsiEvent &event, int threshold) {
+	for (int i = 0; i < 36; ++i) {
+		if (event.valid[i] && event.energy[i] > threshold) return true;
+	}
+	return false;
+}
+
+bool HasDssdTrigger(const DssdEvent &event) {
+	return event.front_num > 0 || event.back_num > 0;
+}
+
 } // namespace
 
 int main(int argc, char **argv) {
@@ -446,6 +467,30 @@ int main(int argc, char **argv) {
 	long long trigger_time = 0;
 	trigger_tree.Branch("time", &trigger_time, "time/L");
 
+	TString trigger_taf_path = TString::Format(
+		"%s/forge/trigger_vme_taf_%04d.root",
+		workspace.c_str(),
+		vme_run
+	);
+	TFile trigger_taf_file(trigger_taf_path, "recreate");
+	TTree trigger_taf_tree("tree", "trigger vme taf");
+	bool trigger_taf_valid = false;
+	long long trigger_taf_time = 0;
+	trigger_taf_tree.Branch("valid", &trigger_taf_valid, "valid/O");
+	trigger_taf_tree.Branch("time", &trigger_taf_time, "time/L");
+
+	TString trigger_t1_path = TString::Format(
+		"%s/forge/trigger_vme_t1_%04d.root",
+		workspace.c_str(),
+		vme_run
+	);
+	TFile trigger_t1_file(trigger_t1_path, "recreate");
+	TTree trigger_t1_tree("tree", "trigger vme t1");
+	bool trigger_t1_valid = false;
+	long long trigger_t1_time = 0;
+	trigger_t1_tree.Branch("valid", &trigger_t1_valid, "valid/O");
+	trigger_t1_tree.Branch("time", &trigger_t1_time, "time/L");
+
 	const long long total = input_tree->GetEntries();
 	long long last_percentage = 0;
 	printf("Mapping VME   0%%");
@@ -469,6 +514,18 @@ int main(int argc, char **argv) {
 		FillBeamEvent(input, beam_event);
 		FillPpacEvent(input, ppac_event);
 		trigger_time = static_cast<long long>(input.sdc[1]);
+		trigger_taf_time = trigger_time;
+		trigger_t1_time = trigger_time;
+		trigger_taf_valid =
+			HasTafdTrigger(tafd_event, 300)
+			|| HasCsiTrigger(tafcsi_event, 300)
+			|| HasCsiTrigger(t0csi_event, 300);
+		trigger_t1_valid =
+			trigger_taf_valid
+			|| HasDssdTrigger(t1ud_event)
+			|| HasDssdTrigger(t1dd_event)
+			|| HasCsiTrigger(t1dcsi_event, 300)
+			|| HasCsiTrigger(t1ucsi_event, 300);
 
 		tafd_tree.Fill();
 		t1ud_tree.Fill();
@@ -480,6 +537,8 @@ int main(int argc, char **argv) {
 		beam_tree.Fill();
 		ppac_tree.Fill();
 		trigger_tree.Fill();
+		trigger_taf_tree.Fill();
+		trigger_t1_tree.Fill();
 	}
 	printf("\b\b\b\b100%%\n");
 
@@ -522,6 +581,14 @@ int main(int argc, char **argv) {
 	trigger_file.cd();
 	trigger_tree.Write();
 	trigger_file.Close();
+
+	trigger_taf_file.cd();
+	trigger_taf_tree.Write();
+	trigger_taf_file.Close();
+
+	trigger_t1_file.cd();
+	trigger_t1_tree.Write();
+	trigger_t1_file.Close();
 
 	input_file.Close();
 	return 0;

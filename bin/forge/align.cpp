@@ -122,6 +122,59 @@ int ReadVmeTimes(
 	return 0;
 }
 
+int ReadVmeTriggerTimes(
+	const char *path,
+	std::vector<long long> &times,
+	std::vector<long long> &entries,
+	bool report = false
+) {
+	TFile ipf(path, "read");
+	TTree *ipt = (TTree*)ipf.Get("tree");
+	if (!ipt) {
+		std::cerr << "Error: get tree from " << path << " failed.\n";
+		return -1;
+	}
+
+	bool valid = false;
+	long long time = 0;
+	ipt->SetBranchAddress("valid", &valid);
+	ipt->SetBranchAddress("time", &time);
+
+	times.clear();
+	entries.clear();
+	long long bit_flip_offset = 0;
+	long long last_timestamp = 0;
+	long long total = ipt->GetEntries();
+	long long last_percentage = 0;
+	if (report) {
+		printf("Reading VME trigger times   0%%");
+		fflush(stdout);
+	}
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100ll / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
+			fflush(stdout);
+		}
+
+		ipt->GetEntry(entry);
+		if (time == 0) continue;
+		long long timestamp = (time + bit_flip_offset) * 200;
+		if (timestamp < last_timestamp) {
+			bit_flip_offset += 1ll << 32;
+			timestamp += (1ll << 32) * 200;
+		}
+		last_timestamp = timestamp;
+
+		if (!valid) continue;
+		times.push_back(timestamp);
+		entries.push_back(entry);
+	}
+	if (report) printf("\b\b\b\b100%%\n");
+	ipf.Close();
+	return 0;
+}
+
 std::string RequireKey(const toml::table &tbl, const char *key) {
 	if (!tbl.contains(key) || !tbl[key].is_string()) {
 		std::cerr << "Error: Missing required parameter "
@@ -134,6 +187,7 @@ std::string RequireKey(const toml::table &tbl, const char *key) {
 int main(int argc, char **argv) {
 	cxxopts::Options options("forge", "forge detectors");
 	options.add_options()
+		("h,help", "Print usage")
 		(
 			"x,xia_run",
 			"XIA run number, required.",
@@ -147,7 +201,12 @@ int main(int argc, char **argv) {
 		(
 			"e,external",
 			"Use XIA's external timestamp.",
-			cxxopts::value<bool>()
+			cxxopts::value<bool>()->default_value("false")
+		)
+		(
+			"t,trigger",
+			"VME trigger source: taf or t1. Omit to read all VME sdc.",
+			cxxopts::value<std::string>()->default_value("")
 		);
 	auto parse_result = options.parse(argc, argv);
 
@@ -162,6 +221,12 @@ int main(int argc, char **argv) {
 	int xia_run = parse_result["xia_run"].as<int>();
 	int vme_run = parse_result["vme_run"].as<int>();
 	bool external = parse_result["external"].as<bool>();
+	std::string trigger = parse_result["trigger"].as<std::string>();
+	if (trigger != "" && trigger != "taf" && trigger != "t1") {
+		std::cerr << "Error: Unsupported trigger option " << trigger
+			<< ", use taf or t1.\n";
+		return -1;
+	}
 
 	toml::table tbl = toml::parse_file("config.toml");
 	std::string workspace = RequireKey(tbl, "workspace");
@@ -188,20 +253,38 @@ int main(int argc, char **argv) {
 
 	std::vector<long long> vme_times;
 	std::vector<long long> vme_entries;
-	TString vme_filename = TString::Format(
-		"%s/%s%04d.root",
-		vme_path.c_str(),
-		vme_prefix.c_str(),
-		vme_run
-	);
-	if (ReadVmeTimes(
-		vme_filename.Data(),
-		vme_times,
-		vme_entries,
-		true
-	)) {
-		std::cerr << "Error: Read VME times failed.\n";
-		return -2;
+	if (trigger.empty()) {
+		TString vme_filename = TString::Format(
+			"%s/%s%04d.root",
+			vme_path.c_str(),
+			vme_prefix.c_str(),
+			vme_run
+		);
+		if (ReadVmeTimes(
+			vme_filename.Data(),
+			vme_times,
+			vme_entries,
+			true
+		)) {
+			std::cerr << "Error: Read VME times failed.\n";
+			return -2;
+		}
+	} else {
+		TString vme_trigger_filename = TString::Format(
+			"%s/forge/trigger_vme_%s_%04d.root",
+			workspace.c_str(),
+			trigger.c_str(),
+			vme_run
+		);
+		if (ReadVmeTriggerTimes(
+			vme_trigger_filename.Data(),
+			vme_times,
+			vme_entries,
+			true
+		)) {
+			std::cerr << "Error: Read VME trigger times failed.\n";
+			return -2;
+		}
 	}
 
 	TString output_file = TString::Format(

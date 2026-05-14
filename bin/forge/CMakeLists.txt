@@ -18,3 +18,17 @@ target_link_libraries(
 
 add_executable(align align.cpp)
 target_link_libraries(align PRIVATE alignment trigger_event)
+
+add_executable(map_vme map_vme.cpp)
+target_link_libraries(
+	map_vme
+	PRIVATE
+	tafd_event
+	dssd_event
+	csi_event
+	beam_event
+	ppac_event
+	ROOT::RIO
+	ROOT::Tree
+	ROOT::Core
+)

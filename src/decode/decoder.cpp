@@ -28,8 +28,6 @@ Decoder::Decoder(
 	last_percentage_ = 0;
 }
 
-
-
 DecodeEvent* Decoder::GetEvent(bool report) {
 	if (report && read_size_ * 100 / total_size_ > last_percentage_) {
 		last_percentage_ = read_size_ * 100 / total_size_;

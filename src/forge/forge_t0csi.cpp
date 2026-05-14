@@ -77,7 +77,6 @@ int ForgeWithTrigger(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (!raw.cv) continue;
 		double min_time = 2*window;
 		size_t min_time_entry = 0;
 		for (
@@ -158,7 +157,6 @@ int ForgeWithoutTrigger(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (!raw.cv) continue;
 		if (csi.flag == 0) {
 			UpdateCsiEvent(raw, csi);
 			ref_time = raw.time;

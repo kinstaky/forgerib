@@ -6,7 +6,8 @@
 
 #include "external/toml.hpp"
 #include "include/event/raw/raw_trigger_event.h"
-#include "include/decode/decoder.h"
+#include "include/event/raw/decode_event.h"
+#include "include/decode/raw_reader.h"
 
 std::string GetRequired(
 	const toml::table &tbl,
@@ -41,18 +42,31 @@ void DecodeTrigger(
 		printf("Decoding trigger   0%%");
 		fflush(stdout);
 	}
-	std::vector<int> module{0};
-	std::vector<int> rate{250};
-	glimmer::Decoder decoder(1, run, 0, module, rate, raw_path, raw_prefix);
-	for (
-		glimmer::DecodeEvent *event = decoder.GetEvent(report);
-		event;
-		event = decoder.GetEvent(report)
-	) {
-		if (event->channel >= 4 && event->channel <= 9) {
-			trigger.type = event->channel - 4;
-			trigger.time = event->time;
-			trigger.cv = event->cfd_valid;
+	size_t last_percentage = 0;
+
+	glimmer::RawReader reader(
+		raw_path, raw_prefix, run, 0, 0, 250
+	);
+	glimmer::DecodeEvent event;
+	glimmer::RawExternalTime *external_time;
+
+	size_t total_bytes = reader.FileSize();
+	size_t bytes = 0;
+	while (bytes < total_bytes) {
+		if (report && bytes*100lu/total_bytes > last_percentage) {
+			last_percentage = bytes * 100 / total_bytes;
+			printf("\b\b\b\b%3lu%%", last_percentage);
+			fflush(stdout);
+		}
+		size_t read_bytes = reader.Read(&event, nullptr, nullptr, &external_time);
+		if (read_bytes >= 16) bytes += read_bytes;
+		else if (read_bytes == 0) break;
+		if (event.channel >= 4 && event.channel <= 9) {
+			trigger.type = event.channel - 4;
+			trigger.time = event.time;
+			trigger.external_time =
+				((long long)(external_time->high) << 32) | ((long long)(external_time->low));
+			trigger.cv = event.cfd_valid;
 			opt.Fill();
 		}
 	}

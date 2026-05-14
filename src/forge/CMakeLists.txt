@@ -1,7 +1,3 @@
-add_library(colossus colossus.cpp)
-target_include_directories(colossus PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
-target_link_libraries(colossus ROOT::RIO ROOT::Core ROOT::Tree ROOT::Graf)
-
 add_library(forge_ppac forge_ppac.cpp)
 target_link_libraries(forge_ppac PUBLIC ppac_event raw_ppac_event)
 
@@ -28,3 +24,9 @@ target_link_libraries(forge_t0d3 PUBLIC dssd_event raw_dssd_event)
 
 add_library(forge_t0d4 forge_t0d4.cpp)
 target_link_libraries(forge_t0d4 PUBLIC dssd_event raw_dssd_event)
+
+add_library(forge_vme forge_vme.cpp)
+target_link_libraries(forge_vme PUBLIC vme_event ROOT::Graf)
+
+add_library(alignment alignment.cpp)
+target_link_libraries(alignment PUBLIC align_event ROOT::Graf)

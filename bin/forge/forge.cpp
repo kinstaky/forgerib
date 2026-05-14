@@ -2,7 +2,6 @@
 
 #include <TString.h>
 
-#include "include/forge/colossus.h"
 #include "include/forge/forge_beam.h"
 #include "include/forge/forge_t0csi.h"
 #include "include/forge/forge_ppac.h"
@@ -12,7 +11,9 @@
 #include "include/forge/forge_t0d3.h"
 #include "include/forge/forge_t0d4.h"
 #include "include/forge/forge_trigger.h"
+#include "include/forge/forge_vme.h"
 #include "include/event/raw/raw_trigger_event.h"
+#include "include/event/forge/trigger_event.h"
 
 #include "external/cxxopts.hpp"
 #include "external/toml.hpp"
@@ -63,28 +64,55 @@ int ReadMainTrigger(
 	return 0;
 }
 
+int ReadVmeTriggerWithMainEntries(
+	const char *workspace,
+	int run,
+	std::vector<long long> &trigger,
+	std::vector<long long> &entries,
+	bool report = false
+) {
+	TString filename = TString::Format(
+		"%s/forge/trigger_%04d.root",
+		workspace,
+		run
+	);
+	TFile ipf(filename, "read");
+	TTree *ipt = (TTree*)ipf.Get("tree");
+	if (!ipt) {
+		std::cerr << "Error: Get tree from "
+			<< filename << " failed.\n";
+		return -1;
+	}
+	glimmer::TriggerEvent trigger_event;
+	glimmer::SetupInput(ipt, trigger_event);
+
+	trigger.clear();
+	if (report) {
+		printf("Reading trigger   0%%");
+		fflush(stdout);
+	}
+	long long total = ipt->GetEntries();
+	long long last_percentage = 0;
+	for (long long entry = 0; entry < total; ++entry) {
+		if (report && entry * 100ll / total > last_percentage) {
+			last_percentage = entry * 100ll / total;
+			printf("\b\b\b\b%3lld%%", last_percentage);
+			fflush(stdout);
+		}
+		ipt->GetEntry(entry);
+		if (trigger_event.valid[kTriggerVme]) {
+			trigger.push_back(trigger_event.external_time[kTriggerVme]);
+			entries.push_back(entry);
+		}
+	}
+	if (report) {
+		printf("\b\b\b\b100%%\n");
+	}
+	return 0;
+}
+
 
 int main(int argc, char **argv) {
-
-	// TString trigger_path = TString::Format(
-	// 	"/data/xia0/test/decode/online_R%04d.root",
-	// 	74
-	// );
-	// TString vme_path = TString::Format(
-	// 	"/data/vme/test/root_file/data%04d.root",
-	// 	210
-	// );
-	// TString output_path = TString::Format(
-	// 	"/data/glimmer/forge/test-case-1.root"
-	// );
-	// ForgeVme(
-	// 	trigger_path.Data(),
-	// 	vme_path.Data(),
-	// 	output_path.Data(),
-	// 	1000,
-	// 	500
-	// );
-
 	cxxopts::Options options("forge", "forge detectors");
 	options.add_options()
 		("h,help", "Print usage")
@@ -99,21 +127,26 @@ int main(int argc, char **argv) {
 			cxxopts::value<int>()
 		)
 		(
+			"v,vme_run",
+			"VME run number.",
+			cxxopts::value<int>()
+		)
+		(
 			"detectors",
-			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, trigger",
+			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, trigger, vme",
 			cxxopts::value<std::vector<std::string>>()
 		);
 	options.parse_positional({"detectors"});
-	auto result = options.parse(argc, argv);
+	auto parse_result = options.parse(argc, argv);
 
-	if (result.count("help") || !result.count("run")) {
+	if (parse_result.count("help") || !parse_result.count("run")) {
 		std::cout << options.help() << std::endl;
 		return 0;
 	}
-	bool use_trigger = result["trigger"].as<bool>();
-	int run = result["run"].as<int>();
+	bool use_trigger = parse_result["trigger"].as<bool>();
+	int run = parse_result["run"].as<int>();
 	std::vector<std::string> detectors =
-		result["detectors"].as<std::vector<std::string>>();
+		parse_result["detectors"].as<std::vector<std::string>>();
 	if (detectors.empty()) {
 		std::cout << options.help() << std::endl;
 		return 0;
@@ -127,15 +160,9 @@ int main(int argc, char **argv) {
 	std::string workspace = tbl["workspace"].as_string()->get();
 
 	bool need_trigger = use_trigger;
-	for (const std::string &det : detectors) {
-		if (det == "trigger") {
-			need_trigger = true;
-			break;
-		}
-	}
 
 	std::vector<double> triggers;
-	if (need_trigger) {
+	if (need_trigger && (detectors.size() > 1 || detectors[0] != "vme")) {
 		if (ReadMainTrigger(
 			workspace.c_str(),
 			run,
@@ -408,6 +435,59 @@ int main(int argc, char **argv) {
 			);
 			if (result) {
 				std::cerr << "Error: Froge trigger failed.\n";
+			} else {
+				std::cout << "Forge trigger success!\n";
+			}
+		} else if (det == "vme") {
+			if (!tbl.contains("vme_path") || !tbl["vme_path"].is_string()) {
+				std::cerr << "Error: Missing reqruied parameter vme_path from config.toml.\n";
+				continue;
+			}
+			if (!tbl.contains("vme_prefix") || !tbl["vme_prefix"].is_string()) {
+				std::cerr << "Error: Missing reqruied parameter vme_prefix from config.toml.\n";
+				continue;
+			}
+			std::string vme_path = tbl["vme_path"].as_string()->get();
+			std::string vme_prefix = tbl["vme_prefix"].as_string()->get();
+			if (!parse_result.count("vme_run")) {
+				std::cerr << "Error: Missing required args vme_run, use -h for help.\n";
+				continue;
+			}
+			int vme_run = parse_result["vme_run"].as<int>();
+			std::vector<long long> vme_triggers;
+			std::vector<long long> trigger_entries;
+			if (ReadVmeTriggerWithMainEntries(
+				workspace.c_str(),
+				run,
+				vme_triggers,
+				trigger_entries,
+				true
+			)) {
+				std::cerr << "Error: Read vme trigger with entries failed.\n";
+				return -1;
+			}
+			TString input_path = TString::Format(
+				"%s/%s%04d.root",
+				vme_path.c_str(),
+				vme_prefix.c_str(),
+				vme_run
+			);
+			TString output_path = TString::Format(
+				"%s/forge/vme_%04d.root",
+				workspace.c_str(),
+				run
+			);
+			int result = glimmer::ForgeVmeWithTrigger(
+				vme_triggers,
+				trigger_entries,
+				input_path.Data(),
+				output_path.Data(),
+				1000.0,
+				10000,
+				true
+			);
+			if (result) {
+				std::cerr << "Error: Froge VME with trigger failed.\n";
 			} else {
 				std::cout << "Forge trigger success!\n";
 			}

@@ -183,7 +183,6 @@ int ForgeWithoutTrigger(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (!raw.cv) continue;
 		if (dssd.front_num == 0 && dssd.back_num == 0) {
 			FillHit(raw, dssd);
 			ref_time = raw.time;

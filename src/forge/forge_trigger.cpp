@@ -20,6 +20,7 @@ void ResetTriggerEvent(TriggerEvent &trigger) {
 	for (int i = 0; i < 6; ++i) {
 		trigger.valid[i] = false;
 		trigger.time[i] = 0.0;
+		trigger.external_time[i] = 0;
 	}
 }
 
@@ -31,6 +32,7 @@ void UpdateTriggerEvent(
 	trigger.flag |= 1 << raw.type;
 	trigger.valid[raw.type] = true;
 	trigger.time[raw.type] = raw.time;
+	trigger.external_time[raw.type] = raw.external_time;
 }
 
 

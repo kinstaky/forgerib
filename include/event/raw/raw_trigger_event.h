@@ -16,6 +16,7 @@ constexpr int kTriggerMain = 5;
 struct RawTriggerEvent {
 	int type;
 	double time;
+	long long external_time;
 	bool cv;
 };
 

@@ -97,7 +97,6 @@ int ForgeWithTrigger(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (!raw.cv) continue;
 		double min_time = 2*window;
 		size_t min_time_entry = 0;
 		for (
@@ -178,7 +177,6 @@ int ForgeWithoutTrigger(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (!raw.cv) continue;
 		if (dssd.front_num == 0 && dssd.back_num == 0) {
 			FillHit(raw, dssd);
 			ref_time = raw.time;

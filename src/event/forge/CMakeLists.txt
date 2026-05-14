@@ -21,3 +21,11 @@ target_link_libraries(silicon_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
 add_library(csi_event csi_event.cpp)
 target_include_directories(csi_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
 target_link_libraries(csi_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
+
+add_library(vme_event vme_event.cpp)
+target_include_directories(vme_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(vme_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)
+
+add_library(align_event align_event.cpp)
+target_include_directories(align_event PUBLIC ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(align_event PUBLIC ROOT::Core ROOT::Tree ROOT::RIO)

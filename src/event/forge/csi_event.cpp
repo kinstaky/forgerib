@@ -11,9 +11,9 @@ void SetupInput(TTree *tree, CsiEvent &event, const std::string &prefix) {
 
 void SetupOutput(TTree *tree, CsiEvent &event) {
 	tree->Branch("flag", &event.flag, "flag/l");
-	tree->Branch("valid", event.valid, "valid[36]/O");
-	tree->Branch("time", event.time, "time[36]/D");
-	tree->Branch("energy", event.energy, "energy[36]/I");
+	tree->Branch("valid", event.valid, "v[36]/O");
+	tree->Branch("time", event.time, "t[36]/D");
+	tree->Branch("energy", event.energy, "e[36]/I");
 }
 
 }

@@ -14,12 +14,12 @@ void SetupInput(TTree *tree, TafdEvent &event, const std::string &prefix) {
 
 void SetupOutput(TTree *tree, TafdEvent &event) {
 	tree->Branch("flag", &event.flag, "flag/I");
-	tree->Branch("valid", event.valid, "valid[6]/O");
-	tree->Branch("front_energy", event.front_energy, "front_energy[6]/D");
-	tree->Branch("back_energy", event.back_energy, "back_energy[6]/D");
-	tree->Branch("front_strip", event.front_strip, "front_strip[6]/I");
-	tree->Branch("back_strip", event.back_strip, "back_strip[6]/I");
-	tree->Branch("front_time", event.front_time, "front_time[6]/D");
+	tree->Branch("valid", event.valid, "v[6]/O");
+	tree->Branch("front_energy", event.front_energy, "fe[6]/D");
+	tree->Branch("back_energy", event.back_energy, "be[6]/D");
+	tree->Branch("front_strip", event.front_strip, "fs[6]/I");
+	tree->Branch("back_strip", event.back_strip, "bs[6]/I");
+	tree->Branch("front_time", event.front_time, "ft[6]/D");
 }
 
 }

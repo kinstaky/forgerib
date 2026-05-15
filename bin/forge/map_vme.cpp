@@ -199,7 +199,7 @@ void FillTafdEvent(const VmeBranches &input, TafdEvent &event) {
 			ChannelRef ref = TafdFrontChannel(det, strip);
 			int energy = AdcEnergy(input, ref);
 			int time_channel = 32 + det * 16 + strip;
-			if (energy <= 0) continue;
+			if (energy <= 300 || energy >= 4096) continue;
 			if (input.gmulti[0][time_channel] <= 0) continue;
 			if (BetterCandidate(energy, strip, best_front_energy, best_front_strip)) {
 				best_front_energy = energy;
@@ -213,7 +213,7 @@ void FillTafdEvent(const VmeBranches &input, TafdEvent &event) {
 		for (int strip = 0; strip < 8; ++strip) {
 			ChannelRef ref = TafdBackChannel(det, strip);
 			int energy = AdcEnergy(input, ref);
-			if (energy <= 0) continue;
+			if (energy <= 300 || energy >= 4096) continue;
 			if (BetterCandidate(energy, strip, best_back_energy, best_back_strip)) {
 				best_back_energy = energy;
 				best_back_strip = strip;
@@ -273,7 +273,7 @@ void FillT1Event(
 }
 
 void UpdateCsiHit(CsiEvent &event, int index, int energy) {
-	if (index < 0 || index >= 36 || energy <= 0) return;
+	if (index < 0 || index >= 36 || energy <= 300 || energy >= 8192) return;
 	if (!event.valid[index] || energy > event.energy[index]) {
 		event.valid[index] = true;
 		event.flag |= 1ull << index;
@@ -464,7 +464,9 @@ int main(int argc, char **argv) {
 	TString trigger_path = TString::Format("%s/forge/trigger_vme_%04d.root", workspace.c_str(), vme_run);
 	TFile trigger_file(trigger_path, "recreate");
 	TTree trigger_tree("tree", "trigger vme");
+	bool trigger_valid = true;
 	long long trigger_time = 0;
+	trigger_tree.Branch("valid", &trigger_valid, "v/O");
 	trigger_tree.Branch("time", &trigger_time, "time/L");
 
 	TString trigger_taf_path = TString::Format(
@@ -476,7 +478,7 @@ int main(int argc, char **argv) {
 	TTree trigger_taf_tree("tree", "trigger vme taf");
 	bool trigger_taf_valid = false;
 	long long trigger_taf_time = 0;
-	trigger_taf_tree.Branch("valid", &trigger_taf_valid, "valid/O");
+	trigger_taf_tree.Branch("valid", &trigger_taf_valid, "v/O");
 	trigger_taf_tree.Branch("time", &trigger_taf_time, "time/L");
 
 	TString trigger_t1_path = TString::Format(
@@ -488,7 +490,7 @@ int main(int argc, char **argv) {
 	TTree trigger_t1_tree("tree", "trigger vme t1");
 	bool trigger_t1_valid = false;
 	long long trigger_t1_time = 0;
-	trigger_t1_tree.Branch("valid", &trigger_t1_valid, "valid/O");
+	trigger_t1_tree.Branch("valid", &trigger_t1_valid, "v/O");
 	trigger_t1_tree.Branch("time", &trigger_t1_time, "time/L");
 
 	const long long total = input_tree->GetEntries();

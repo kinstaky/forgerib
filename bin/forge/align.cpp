@@ -59,68 +59,6 @@ int ReadXiaTimes(
 	return 0;
 }
 
-int ReadVmeTimes(
-	const char *path,
-	std::vector<long long> &times,
-	std::vector<long long> &entries,
-	bool report = false
-) {
-	// VME event input file
-	TFile ipf(path, "read");
-	// VME input tree
-	TTree *ipt = (TTree*)ipf.Get("tree");
-	if (!ipt) {
-		std::cerr << "Error: get tree from " << path << " failed.\n";
-		return -1;
-	}
-	// set branches
-	unsigned long long sdc[32];
-	ipt->SetBranchAddress("sdc", sdc);
-
-	// initialize
-	times.clear();
-	entries.clear();
-	// offset cause by bit flip
-	long long bit_flip_offset = 0;
-	// last timestamp for checking bit flip
-	long long last_timestamp = 0;
-	// total number of events
-	long long total = ipt->GetEntries();
-	long long last_percentage = 0;
-	// show start
-	if (report) {
-		printf("Reading VME times   0%%");
-		fflush(stdout);
-	}
-	for (long long entry = 0; entry < total; ++entry) {
-		// show process
-		if (report && entry * 100ll / total > last_percentage) {
-			last_percentage = entry * 100ll / total;
-			printf("\b\b\b\b%3lld%%", last_percentage);
-			fflush(stdout);
-		}
-
-		ipt->GetEntry(entry);
-		if (sdc[1] == 0) continue;
-		// calculate timestamp
-		long long timestamp = ((long long)sdc[1] + bit_flip_offset) * 200;
-		// check sdc over range
-		if (timestamp < last_timestamp) {
-			bit_flip_offset += 1ll << 32;
-			timestamp += (1ll << 32) * 200;
-		}
-		last_timestamp = timestamp;
-
-		// record
-		times.push_back(timestamp);
-		entries.push_back(entry);
-	}
-	// show finish
-	if (report) printf("\b\b\b\b100%%\n");
-	// close input file
-	ipf.Close();
-	return 0;
-}
 
 int ReadVmeTriggerTimes(
 	const char *path,
@@ -158,6 +96,7 @@ int ReadVmeTriggerTimes(
 		}
 
 		ipt->GetEntry(entry);
+		if (!valid) continue;
 		if (time == 0) continue;
 		long long timestamp = (time + bit_flip_offset) * 200;
 		if (timestamp < last_timestamp) {
@@ -166,7 +105,6 @@ int ReadVmeTriggerTimes(
 		}
 		last_timestamp = timestamp;
 
-		if (!valid) continue;
 		times.push_back(timestamp);
 		entries.push_back(entry);
 	}
@@ -253,47 +191,30 @@ int main(int argc, char **argv) {
 
 	std::vector<long long> vme_times;
 	std::vector<long long> vme_entries;
-	if (trigger.empty()) {
-		TString vme_filename = TString::Format(
-			"%s/%s%04d.root",
-			vme_path.c_str(),
-			vme_prefix.c_str(),
-			vme_run
-		);
-		if (ReadVmeTimes(
-			vme_filename.Data(),
-			vme_times,
-			vme_entries,
-			true
-		)) {
-			std::cerr << "Error: Read VME times failed.\n";
-			return -2;
-		}
-	} else {
-		TString vme_trigger_filename = TString::Format(
-			"%s/forge/trigger_vme_%s_%04d.root",
-			workspace.c_str(),
-			trigger.c_str(),
-			vme_run
-		);
-		if (ReadVmeTriggerTimes(
-			vme_trigger_filename.Data(),
-			vme_times,
-			vme_entries,
-			true
-		)) {
-			std::cerr << "Error: Read VME trigger times failed.\n";
-			return -2;
-		}
+	TString vme_trigger_filename = TString::Format(
+		"%s/forge/trigger_vme_%s%04d.root",
+		workspace.c_str(),
+		trigger.empty() ? "" : (trigger+"_").c_str(),
+		vme_run
+	);
+	if (ReadVmeTriggerTimes(
+		vme_trigger_filename.Data(),
+		vme_times,
+		vme_entries,
+		true
+	)) {
+		std::cerr << "Error: Read VME trigger times failed.\n";
+		return -2;
 	}
 
 	TString output_file = TString::Format(
-		"%s/forge/align_%04d.root",
+		"%s/forge/align_%s%04d.root",
 		workspace.c_str(),
+		trigger.empty() ? "" : (trigger+"_").c_str(),
 		xia_run
 	);
 	int group_num = xia_run == 90
-		? 10 : 100;
+		? 10 : 300;
 	int result = Align(
 		xia_times,
 		xia_entries,
@@ -301,7 +222,7 @@ int main(int argc, char **argv) {
 		vme_entries,
 		output_file,
 		group_num,
-		10'000'000,
+		3'000'000,
 		-10'000'000'000,
 		10'000'000'000,
 		true,

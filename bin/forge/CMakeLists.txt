@@ -14,6 +14,7 @@ target_link_libraries(
 	forge_vme
 	raw_trigger_event
 	trigger_event
+	align_event
 )
 
 add_executable(align align.cpp)

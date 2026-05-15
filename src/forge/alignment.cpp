@@ -69,6 +69,7 @@ int Align(
 	const std::vector<long long> &xia_entries,
 	const std::vector<long long> &vme_times,
 	const std::vector<long long> &vme_entries,
+	//const long long xia_total_entries,
 	const char *output_path,
 	int group_num,
 	double search_window,
@@ -360,7 +361,7 @@ int Align(
 				++oversize;
 				++oversize_events;
 			}
-			opt.Fill();
+			if (event.xia_time > 0) opt.Fill();
 		}
 		// save time window
 		third_match_window.Write();
@@ -380,12 +381,17 @@ int Align(
 		upper_bound = max_match_offset + 2 * search_window;
 	}
 	// save tree
+	opf.cd();
 	opt.Write();
 	// save offsets and windows
 	for (int i = 0; i < 3; ++i) {
 		offset_vs_group[i].Write(TString::Format("goffset%d", i));
 		window_vs_group[i].Write(TString::Format("gwindow%d", i));
 	}
+	// opf.WriteObject(
+	// 	new TParameter<long long>("xia_total", xia_total_entries),
+	// 	"xia_total_entries"
+	// );
 	opf.Close();
 
 	if (report) {

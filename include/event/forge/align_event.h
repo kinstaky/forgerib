@@ -16,7 +16,7 @@ struct AlignEvent {
 	long long vme_time;
 };
 
-void SetupInput(TTree *tree, AlignEvent &event, const std::string &prefix);
+void SetupInput(TTree *tree, AlignEvent &event, const std::string &prefix = "");
 
 void SetupOutput(TTree *tree, AlignEvent &event);
 

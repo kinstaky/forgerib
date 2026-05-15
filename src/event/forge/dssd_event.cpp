@@ -24,4 +24,29 @@ void SetupOutput(TTree *tree, DssdEvent &event) {
 	tree->Branch("back_time", event.back_time, "bt[bn]/D");
 }
 
+void Reset(DssdEvent &event) {
+	event.front_num = 0;
+	event.back_num = 0;
+}
+
+void Update(
+	DssdEvent &event,
+	bool front,
+	int strip,
+	double energy,
+	double time
+) {
+	if (front) {
+		event.front_strip[event.front_num] = strip;
+		event.front_energy[event.front_num] = energy;
+		event.front_time[event.front_num] = time;
+		++event.front_num;
+	} {
+		event.back_strip[event.back_num] = strip;
+		event.back_energy[event.back_num] = energy;
+		event.back_time[event.back_num] = time;
+		++event.back_num;
+	}
+}
+
 }

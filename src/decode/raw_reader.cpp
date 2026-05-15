@@ -137,7 +137,7 @@ int RawReader::Read(
 		);
 		int jump_bytes = SearchGoodEvent(handle_, crate_id_, module_+2);
 		if (jump_bytes == 0) return 0;
-		std::cout << "Warning: Restore data after jump " << jump_bytes << " bytes.\n";
+		fprintf(stderr, "Warning: Restore data after jump %d bytes.\n", jump_bytes);
 		handle_.read((char*)&header_, sizeof(RawHeader));
 	}
 

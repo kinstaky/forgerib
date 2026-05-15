@@ -232,7 +232,7 @@ void FillTafdEvent(const VmeBranches &input, TafdEvent &event) {
 	}
 }
 
-void FillT1Event(
+void FillDssdEvent(
 	const VmeBranches &input,
 	DssdEvent &event,
 	bool up
@@ -413,11 +413,11 @@ int main(int argc, char **argv) {
 	TafdEvent tafd_event;
 	SetupOutput(&tafd_tree, tafd_event);
 
-	TString t1ud_path = TString::Format("%s/forge/t1ud_vme_%04d.root", workspace.c_str(), vme_run);
-	TFile t1ud_file(t1ud_path, "recreate");
-	TTree t1ud_tree("tree", "t1ud vme");
-	DssdEvent t1ud_event;
-	SetupOutput(&t1ud_tree, t1ud_event);
+	TString t1du_path = TString::Format("%s/forge/t1du_vme_%04d.root", workspace.c_str(), vme_run);
+	TFile t1du_file(t1du_path, "recreate");
+	TTree t1du_tree("tree", "t1du vme");
+	DssdEvent t1du_event;
+	SetupOutput(&t1du_tree, t1du_event);
 
 	TString t1dd_path = TString::Format("%s/forge/t1dd_vme_%04d.root", workspace.c_str(), vme_run);
 	TFile t1dd_file(t1dd_path, "recreate");
@@ -437,13 +437,13 @@ int main(int argc, char **argv) {
 	CsiEvent tafcsi_event;
 	SetupOutput(&tafcsi_tree, tafcsi_event);
 
-	TString t1dcsi_path = TString::Format("%s/forge/t1dcsi_vme_%04d.root", workspace.c_str(), vme_run);
+	TString t1dcsi_path = TString::Format("%s/forge/t1csid_vme_%04d.root", workspace.c_str(), vme_run);
 	TFile t1dcsi_file(t1dcsi_path, "recreate");
 	TTree t1dcsi_tree("tree", "t1dcsi vme");
 	CsiEvent t1dcsi_event;
 	SetupOutput(&t1dcsi_tree, t1dcsi_event);
 
-	TString t1ucsi_path = TString::Format("%s/forge/t1ucsi_vme_%04d.root", workspace.c_str(), vme_run);
+	TString t1ucsi_path = TString::Format("%s/forge/t1csiu_vme_%04d.root", workspace.c_str(), vme_run);
 	TFile t1ucsi_file(t1ucsi_path, "recreate");
 	TTree t1ucsi_tree("tree", "t1ucsi vme");
 	CsiEvent t1ucsi_event;
@@ -507,8 +507,8 @@ int main(int argc, char **argv) {
 		input_tree->GetEntry(entry);
 
 		FillTafdEvent(input, tafd_event);
-		FillT1Event(input, t1ud_event, true);
-		FillT1Event(input, t1dd_event, false);
+		FillDssdEvent(input, t1du_event, true);
+		FillDssdEvent(input, t1dd_event, false);
 		FillT0CsiEvent(input, t0csi_event);
 		FillTafCsiEvent(input, tafcsi_event);
 		FillT1DCsiEvent(input, t1dcsi_event);
@@ -524,13 +524,13 @@ int main(int argc, char **argv) {
 			|| HasCsiTrigger(t0csi_event, 300);
 		trigger_t1_valid =
 			trigger_taf_valid
-			|| HasDssdTrigger(t1ud_event)
+			|| HasDssdTrigger(t1du_event)
 			|| HasDssdTrigger(t1dd_event)
 			|| HasCsiTrigger(t1dcsi_event, 300)
 			|| HasCsiTrigger(t1ucsi_event, 300);
 
 		tafd_tree.Fill();
-		t1ud_tree.Fill();
+		t1du_tree.Fill();
 		t1dd_tree.Fill();
 		t0csi_tree.Fill();
 		tafcsi_tree.Fill();
@@ -548,9 +548,9 @@ int main(int argc, char **argv) {
 	tafd_tree.Write();
 	tafd_file.Close();
 
-	t1ud_file.cd();
-	t1ud_tree.Write();
-	t1ud_file.Close();
+	t1du_file.cd();
+	t1du_tree.Write();
+	t1du_file.Close();
 
 	t1dd_file.cd();
 	t1dd_tree.Write();

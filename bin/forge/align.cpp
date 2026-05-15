@@ -129,12 +129,14 @@ int main(int argc, char **argv) {
 		(
 			"x,xia_run",
 			"XIA run number, required.",
-			cxxopts::value<int>()
+			cxxopts::value<int>(),
+			"run"
 		)
 		(
 			"v,vme_run",
 			"VME run number, required.",
-			cxxopts::value<int>()
+			cxxopts::value<int>(),
+			"run"
 		)
 		(
 			"e,external",
@@ -144,7 +146,8 @@ int main(int argc, char **argv) {
 		(
 			"t,trigger",
 			"VME trigger source: taf or t1. Omit to read all VME sdc.",
-			cxxopts::value<std::string>()->default_value("")
+			cxxopts::value<std::string>()->default_value(""),
+			"trigger"
 		);
 	auto parse_result = options.parse(argc, argv);
 

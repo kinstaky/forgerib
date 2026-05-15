@@ -14,6 +14,7 @@
 #include "include/forge/forge_vme.h"
 #include "include/event/raw/raw_trigger_event.h"
 #include "include/event/forge/trigger_event.h"
+#include "include/event/forge/align_event.h"
 
 #include "external/cxxopts.hpp"
 #include "external/toml.hpp"
@@ -64,34 +65,35 @@ int ReadMainTrigger(
 	return 0;
 }
 
-int ReadVmeTriggerWithMainEntries(
+int ReadOtherTrigger(
 	const char *workspace,
-	int run,
-	std::vector<long long> &trigger,
-	std::vector<long long> &entries,
+	int xia_run,
+	const std::string &trigger_type,
+	std::vector<double> &trigger,
 	bool report = false
 ) {
-	TString filename = TString::Format(
-		"%s/forge/trigger_%04d.root",
+	TString align_path = TString::Format(
+		"%s/forge/align_%s_%04d.root",
 		workspace,
-		run
+		trigger_type.c_str(),
+		xia_run
 	);
-	TFile ipf(filename, "read");
-	TTree *ipt = (TTree*)ipf.Get("tree");
-	if (!ipt) {
+	TFile align_file(align_path, "read");
+	TTree *align_tree = (TTree*)align_file.Get("tree");
+	if (!align_tree) {
 		std::cerr << "Error: Get tree from "
-			<< filename << " failed.\n";
+			<< align_path << " failed.\n";
 		return -1;
 	}
-	glimmer::TriggerEvent trigger_event;
-	glimmer::SetupInput(ipt, trigger_event);
+	AlignEvent align;
+	SetupInput(align_tree, align);
 
 	trigger.clear();
 	if (report) {
 		printf("Reading trigger   0%%");
 		fflush(stdout);
 	}
-	long long total = ipt->GetEntries();
+	long long total = align_tree->GetEntries();
 	long long last_percentage = 0;
 	for (long long entry = 0; entry < total; ++entry) {
 		if (report && entry * 100ll / total > last_percentage) {
@@ -99,15 +101,13 @@ int ReadVmeTriggerWithMainEntries(
 			printf("\b\b\b\b%3lld%%", last_percentage);
 			fflush(stdout);
 		}
-		ipt->GetEntry(entry);
-		if (trigger_event.valid[kTriggerVme]) {
-			trigger.push_back(trigger_event.external_time[kTriggerVme]);
-			entries.push_back(entry);
-		}
+		align_tree->GetEntry(entry);
+		trigger.push_back(align.xia_time);
 	}
 	if (report) {
 		printf("\b\b\b\b100%%\n");
 	}
+	align_file.Close();
 	return 0;
 }
 
@@ -118,23 +118,21 @@ int main(int argc, char **argv) {
 		("h,help", "Print usage")
 		(
 			"t,trigger",
-			"Use main trigger.",
-			cxxopts::value<bool>()->default_value("false")
+			"Select trigger type, main, taf, or t1.",
+			cxxopts::value<std::string>(),
+			"trigger"
 		)
 		(
 			"r,run",
 			"Run number, required.",
-			cxxopts::value<int>()
-		)
-		(
-			"v,vme_run",
-			"VME run number.",
-			cxxopts::value<int>()
+			cxxopts::value<int>(),
+			"run"
 		)
 		(
 			"detectors",
 			"Detector to forge: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, trigger, vme",
-			cxxopts::value<std::vector<std::string>>()
+			cxxopts::value<std::vector<std::string>>(),
+			"detector"
 		);
 	options.parse_positional({"detectors"});
 	auto parse_result = options.parse(argc, argv);
@@ -143,8 +141,10 @@ int main(int argc, char **argv) {
 		std::cout << options.help() << std::endl;
 		return 0;
 	}
-	bool use_trigger = parse_result["trigger"].as<bool>();
 	int run = parse_result["run"].as<int>();
+	std::string trigger_type = parse_result.count("trigger")
+		? parse_result["trigger"].as<std::string>()
+		: "nt";
 	std::vector<std::string> detectors =
 		parse_result["detectors"].as<std::vector<std::string>>();
 	if (detectors.empty()) {
@@ -159,10 +159,8 @@ int main(int argc, char **argv) {
 	}
 	std::string workspace = tbl["workspace"].as_string()->get();
 
-	bool need_trigger = use_trigger;
-
 	std::vector<double> triggers;
-	if (need_trigger && (detectors.size() > 1 || detectors[0] != "vme")) {
+	if (trigger_type == "main") {
 		if (ReadMainTrigger(
 			workspace.c_str(),
 			run,
@@ -170,6 +168,25 @@ int main(int argc, char **argv) {
 			true
 		)) {
 			std::cerr << "Error: Read main trigger failed.\n";
+			return -1;
+		}
+	} else if (trigger_type != "nt") {
+		// if (!parse_result.count("vme_run")) {
+		// 	std::cout << "Error: Require -v,--vme_run for trigger "
+		// 		<< trigger_type << ".\n";
+		// 	std::cout << options.help() << std::endl;
+		// 	return 0;
+		// }
+		// int vme_run = parse_result["vme_run"].as<int>();
+		if (ReadOtherTrigger(
+			workspace.c_str(),
+			run,
+			trigger_type,
+			triggers,
+			true
+		)) {
+			std::cerr << "Error: Read " << trigger_type
+				<< " trigger failed.\n";
 			return -1;
 		}
 	}
@@ -184,7 +201,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/ppac_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgePpac(
@@ -208,7 +225,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0d1_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0d1(
@@ -232,7 +249,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0d2_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0d2(
@@ -256,7 +273,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0d3_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0d3(
@@ -280,7 +297,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0d4_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0d4(
@@ -304,7 +321,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0s_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0s(
@@ -328,7 +345,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t1su_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT1su(
@@ -352,7 +369,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t1sd_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT1sd(
@@ -376,7 +393,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/t0csi_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeT0Csi(
@@ -400,7 +417,7 @@ int main(int argc, char **argv) {
 			TString output_path = TString::Format(
 				"%s/forge/beam_%s%04d.root",
 				workspace.c_str(),
-				use_trigger ? "" : "nt_",
+				trigger_type == "main" ? "" : (trigger_type+"_").c_str(),
 				run
 			);
 			int result = glimmer::ForgeBeam(
@@ -435,59 +452,6 @@ int main(int argc, char **argv) {
 			);
 			if (result) {
 				std::cerr << "Error: Froge trigger failed.\n";
-			} else {
-				std::cout << "Forge trigger success!\n";
-			}
-		} else if (det == "vme") {
-			if (!tbl.contains("vme_path") || !tbl["vme_path"].is_string()) {
-				std::cerr << "Error: Missing reqruied parameter vme_path from config.toml.\n";
-				continue;
-			}
-			if (!tbl.contains("vme_prefix") || !tbl["vme_prefix"].is_string()) {
-				std::cerr << "Error: Missing reqruied parameter vme_prefix from config.toml.\n";
-				continue;
-			}
-			std::string vme_path = tbl["vme_path"].as_string()->get();
-			std::string vme_prefix = tbl["vme_prefix"].as_string()->get();
-			if (!parse_result.count("vme_run")) {
-				std::cerr << "Error: Missing required args vme_run, use -h for help.\n";
-				continue;
-			}
-			int vme_run = parse_result["vme_run"].as<int>();
-			std::vector<long long> vme_triggers;
-			std::vector<long long> trigger_entries;
-			if (ReadVmeTriggerWithMainEntries(
-				workspace.c_str(),
-				run,
-				vme_triggers,
-				trigger_entries,
-				true
-			)) {
-				std::cerr << "Error: Read vme trigger with entries failed.\n";
-				return -1;
-			}
-			TString input_path = TString::Format(
-				"%s/%s%04d.root",
-				vme_path.c_str(),
-				vme_prefix.c_str(),
-				vme_run
-			);
-			TString output_path = TString::Format(
-				"%s/forge/vme_%04d.root",
-				workspace.c_str(),
-				run
-			);
-			int result = glimmer::ForgeVmeWithTrigger(
-				vme_triggers,
-				trigger_entries,
-				input_path.Data(),
-				output_path.Data(),
-				1000.0,
-				10000,
-				true
-			);
-			if (result) {
-				std::cerr << "Error: Froge VME with trigger failed.\n";
 			} else {
 				std::cout << "Forge trigger success!\n";
 			}

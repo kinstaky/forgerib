@@ -7,6 +7,7 @@
 
 #include "include/fuse/fuse_t0csi.h"
 #include "include/fuse/fuse_t1dssd.h"
+#include "include/fuse/fuse_t1csi.h"
 #include "include/event/forge/align_event.h"
 
 #include "external/cxxopts.hpp"
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector to fuse: t0csi, t1du, t1dd",
+			"Detector to fuse: t0csi, t1du, t1dd, t1csiu, t1csid",
 			cxxopts::value<std::vector<std::string>>(),
 			"detector"
 		);
@@ -254,6 +255,74 @@ int main(int argc, char **argv) {
 				std::cerr << "Error: Fuse T1 DSSD down failed.\n";
 			} else {
 				std::cout << "Fuse T1 DSSD down success!\n";
+			}
+		} else if (det == "t1csiu") {
+			TString vme_path = TString::Format(
+				"%s/forge/t1csiu_vme_%04d.root",
+				workspace.c_str(),
+				vme_run
+			);
+			TString output_path = TString::Format(
+				"%s/fuse/t1csiu_%s%04d.root",
+				workspace.c_str(),
+				trigger_type == "main" ? "" : (trigger_type+("_")).c_str(),
+				xia_run
+			);
+			int result = 0;
+			if (trigger_type == "main") {
+				result = glimmer::FuseT1CsIWithXiaTrigger(
+					align_events,
+					xia_total_entries,
+					vme_path,
+					output_path,
+					true
+				);
+			} else {
+				result = glimmer::FuseT1CsIWithVmeTrigger(
+					align_events,
+					vme_path,
+					output_path,
+					true
+				);
+			}
+			if (result) {
+				std::cerr << "Error: Fuse T1 CsI up failed.\n";
+			} else {
+				std::cout << "Fuse T1 CsI up success!\n";
+			}
+		} else if (det == "t1csid") {
+			TString vme_path = TString::Format(
+				"%s/forge/t1csid_vme_%04d.root",
+				workspace.c_str(),
+				vme_run
+			);
+			TString output_path = TString::Format(
+				"%s/fuse/t1csid_%s%04d.root",
+				workspace.c_str(),
+				trigger_type == "main" ? "" : (trigger_type+("_")).c_str(),
+				xia_run
+			);
+			int result = 0;
+			if (trigger_type == "main") {
+				result = glimmer::FuseT1CsIWithXiaTrigger(
+					align_events,
+					xia_total_entries,
+					vme_path,
+					output_path,
+					true
+				);
+			} else {
+				result = glimmer::FuseT1CsIWithVmeTrigger(
+					align_events,
+					vme_path,
+					output_path,
+					true
+				);
+			}
+			if (result) {
+				std::cerr << "Error: Fuse T1 CsI down failed.\n";
+			} else {
+				std::cout << "Fuse T1 CsI down success!\n";
 			}
 		}
 	}

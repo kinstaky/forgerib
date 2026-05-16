@@ -5,12 +5,12 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "include/event/forge/dssd_event.h"
+#include "include/event/forge/csi_event.h"
 #include "include/event/forge/align_event.h"
 
 namespace glimmer {
 
-int FuseT1DssdWithXiaTrigger(
+int FuseT1CsIWithXiaTrigger(
 	const std::vector<AlignEvent> &align_events,
 	const long long xia_entries,
 	const char *vme_path,
@@ -23,17 +23,17 @@ int FuseT1DssdWithXiaTrigger(
 		std::cerr << "Error: Get tree from " << vme_path << " failed.\n";
 		return -2;
 	}
-	DssdEvent vme_dssd;
-	SetupInput(vme_tree, vme_dssd);
+	CsiEvent vme_csi;
+	SetupInput(vme_tree, vme_csi);
 
 	TFile opf(output_path, "recreate");
 	TTree opt("tree", "fused T1 DSSD");
-	DssdEvent dssd;
-	SetupOutput(&opt, dssd);
+	CsiEvent csi;
+	SetupOutput(&opt, csi);
 
 
 	if (report) {
-		printf("Fusing t1dssd   0%%");
+		printf("Fusing t1csi   0%%");
 		fflush(stdout);
 	}
 	long long last_percentage = 0;
@@ -50,7 +50,7 @@ int FuseT1DssdWithXiaTrigger(
 		}
 		if (align_iter != align_events.end() && align_iter->xia_entry == entry) {
 			vme_tree->GetEntry(align_iter->vme_entry);
-			dssd = vme_dssd;
+			csi = vme_csi;
 		}
 		opt.Fill();
 	}
@@ -64,7 +64,7 @@ int FuseT1DssdWithXiaTrigger(
 }
 
 
-int FuseT1DssdWithVmeTrigger(
+int FuseT1CsIWithVmeTrigger(
 	const std::vector<AlignEvent> &align_events,
 	const char *vme_path,
 	const char *output_path,
@@ -76,16 +76,16 @@ int FuseT1DssdWithVmeTrigger(
 		std::cerr << "Error: Get tree from " << vme_path << " failed.\n";
 		return -2;
 	}
-	DssdEvent vme_dssd;
-	SetupInput(vme_tree, vme_dssd);
+	CsiEvent vme_event;
+	SetupInput(vme_tree, vme_event);
 
 	TFile opf(output_path, "recreate");
 	TTree opt("tree", "fused t0csi");
-	DssdEvent dssd;
-	SetupOutput(&opt, dssd);
+	CsiEvent event;
+	SetupOutput(&opt, event);
 
 	if (report) {
-		printf("Fusing t1dssd   0%%");
+		printf("Fusing t1csi   0%%");
 		fflush(stdout);
 	}
 	size_t last_percentage = 0;
@@ -97,7 +97,7 @@ int FuseT1DssdWithVmeTrigger(
 		}
 		// fuse vme events
 		vme_tree->GetEntry(align_events[i].vme_entry);
-		dssd = vme_dssd;
+		event = vme_event;
 		opt.Fill();
 	}
 	if (report) printf("\b\b\b\b100%%\n");

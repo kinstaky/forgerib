@@ -6,8 +6,10 @@
 #include <TParameter.h>
 
 #include "include/fuse/fuse_t0csi.h"
-#include "include/fuse/fuse_t1dssd.h"
-#include "include/fuse/fuse_t1csi.h"
+#include "include/fuse/fuse_detector.h"
+#include "include/event/forge/dssd_event.h"
+#include "include/event/forge/tafd_event.h"
+#include "include/event/forge/csi_event.h"
 #include "include/event/forge/align_event.h"
 
 #include "external/cxxopts.hpp"
@@ -202,18 +204,20 @@ int main(int argc, char **argv) {
 			);
 			int result = 0;
 			if (trigger_type == "main") {
-				result = glimmer::FuseT1DssdWithXiaTrigger(
+				result = glimmer::FuseDetectorWithXiaTrigger<DssdEvent>(
 					align_events,
 					xia_total_entries,
 					vme_path,
 					output_path,
+					"t1du",
 					true
 				);
 			} else {
-				result = glimmer::FuseT1DssdWithVmeTrigger(
+				result = glimmer::FuseDetectorWithVmeTrigger<DssdEvent>(
 					align_events,
 					vme_path,
 					output_path,
+					"t1du",
 					true
 				);
 			}
@@ -236,18 +240,20 @@ int main(int argc, char **argv) {
 			);
 			int result = 0;
 			if (trigger_type == "main") {
-				result = glimmer::FuseT1DssdWithXiaTrigger(
+				result = glimmer::FuseDetectorWithXiaTrigger<DssdEvent>(
 					align_events,
 					xia_total_entries,
 					vme_path,
 					output_path,
+					"t1dd",
 					true
 				);
 			} else {
-				result = glimmer::FuseT1DssdWithVmeTrigger(
+				result = glimmer::FuseDetectorWithVmeTrigger<DssdEvent>(
 					align_events,
 					vme_path,
 					output_path,
+					"t1dd",
 					true
 				);
 			}
@@ -270,18 +276,20 @@ int main(int argc, char **argv) {
 			);
 			int result = 0;
 			if (trigger_type == "main") {
-				result = glimmer::FuseT1CsIWithXiaTrigger(
+				result = glimmer::FuseDetectorWithXiaTrigger<CsiEvent>(
 					align_events,
 					xia_total_entries,
 					vme_path,
 					output_path,
+					"t1csiu",
 					true
 				);
 			} else {
-				result = glimmer::FuseT1CsIWithVmeTrigger(
+				result = glimmer::FuseDetectorWithVmeTrigger<CsiEvent>(
 					align_events,
 					vme_path,
 					output_path,
+					"t1csiu",
 					true
 				);
 			}
@@ -304,18 +312,20 @@ int main(int argc, char **argv) {
 			);
 			int result = 0;
 			if (trigger_type == "main") {
-				result = glimmer::FuseT1CsIWithXiaTrigger(
+				result = glimmer::FuseDetectorWithXiaTrigger<CsiEvent>(
 					align_events,
 					xia_total_entries,
 					vme_path,
 					output_path,
+					"t1csid",
 					true
 				);
 			} else {
-				result = glimmer::FuseT1CsIWithVmeTrigger(
+				result = glimmer::FuseDetectorWithVmeTrigger<CsiEvent>(
 					align_events,
 					vme_path,
 					output_path,
+					"t1csid",
 					true
 				);
 			}
@@ -323,6 +333,43 @@ int main(int argc, char **argv) {
 				std::cerr << "Error: Fuse T1 CsI down failed.\n";
 			} else {
 				std::cout << "Fuse T1 CsI down success!\n";
+			}
+		} else if (det == "tafd") {
+			if (trigger_type != "main") continue;
+			TString vme_path = TString::Format(
+				"%s/forge/tafd_vme_%04d.root",
+				workspace.c_str(),
+				vme_run
+			);
+			TString output_path = TString::Format(
+				"%s/fuse/tafd_%s%04d.root",
+				workspace.c_str(),
+				trigger_type == "main" ? "" : (trigger_type+("_")).c_str(),
+				xia_run
+			);
+			int result = 0;
+			if (trigger_type == "main") {
+				result = glimmer::FuseDetectorWithXiaTrigger<TafdEvent>(
+					align_events,
+					xia_total_entries,
+					vme_path,
+					output_path,
+					"tafd",
+					true
+				);
+			} else {
+				result = glimmer::FuseDetectorWithVmeTrigger<TafdEvent>(
+					align_events,
+					vme_path,
+					output_path,
+					"tafd",
+					true
+				);
+			}
+			if (result) {
+				std::cerr << "Error: Fuse TAFD failed.\n";
+			} else {
+				std::cout << "Fuse TAFD success!\n";
 			}
 		}
 	}

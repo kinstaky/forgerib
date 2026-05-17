@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include <TString.h>
 #include <TFile.h>
@@ -216,8 +217,25 @@ int main(int argc, char **argv) {
 		trigger.empty() ? "" : (trigger+"_").c_str(),
 		xia_run
 	);
-	int group_num = xia_run == 90
-		? 10 : 300;
+
+	std::map<int, int> group_num_table = {
+		{90, 30},
+		{160, 1000}
+	};
+	int group_num = 300;
+	auto found = group_num_table.find(xia_run);
+	if (found != group_num_table.end()) {
+		group_num = found->second;
+	}
+
+	double window = 3'000'000;
+	std::map<int, double> window_table = {
+		{160, 100'000}
+	};
+	auto found_window = window_table.find(xia_run);
+	if (found_window != window_table.end()) {
+		window = found_window->second;
+	}
 	int result = Align(
 		xia_times,
 		xia_entries,
@@ -225,11 +243,11 @@ int main(int argc, char **argv) {
 		vme_entries,
 		output_file,
 		group_num,
-		3'000'000,
+		window,
 		-10'000'000'000,
 		10'000'000'000,
 		true,
-		false
+		true
 	);
 
 	if (result) {

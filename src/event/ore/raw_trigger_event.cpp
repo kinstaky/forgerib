@@ -1,0 +1,19 @@
+#include "include/event/ore/raw_trigger_event.h"
+
+namespace forgerib {
+
+void SetupInput(TTree* tree, RawTriggerEvent &event, const std::string &prefix) {
+	tree->SetBranchAddress((prefix+"type").c_str(), &event.type);
+	tree->SetBranchAddress((prefix+"time").c_str(), &event.time);
+	tree->SetBranchAddress((prefix+"external_time").c_str(), &event.external_time);
+	tree->SetBranchAddress((prefix+"cv").c_str(), &event.cv);
+}
+
+void SetupOutput(TTree *tree, RawTriggerEvent &event) {
+	tree->Branch("type", &event.type, "i/I");
+	tree->Branch("time", &event.time, "t/D");
+	tree->Branch("external_time", &event.external_time, "ets/L");
+	tree->Branch("cv", &event.cv, "cv/O");
+}
+
+};

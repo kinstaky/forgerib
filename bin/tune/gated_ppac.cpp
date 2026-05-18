@@ -10,9 +10,10 @@
 #include <TString.h>
 #include <TTree.h>
 
-#include "external/toml.hpp"
-#include "include/event/forge/beam_event.h"
-#include "include/event/forge/ppac_event.h"
+#include "include/config.h"
+#include "include/crush/util.h"
+#include "include/event/smelt/beam_event.h"
+#include "include/event/smelt/ppac_event.h"
 
 namespace {
 
@@ -20,20 +21,12 @@ double kTofMin = 56.0;
 double kTofMax = 66.0;
 constexpr double kPpacZ[3] = {-52.0, -332.0, -612.0};
 
-std::string GetRequired(const toml::table &tbl, const char *key) {
-	if (!tbl.contains(key) || !tbl[key].is_string()) {
-		std::cerr << "Error: Missing required parameter: " << key << "\n";
-		exit(-1);
-	}
-	return tbl[key].as_string()->get();
-}
-
 bool HasBit(int flag, int bit) {
 	return (flag & (1 << bit)) != 0;
 }
 
 bool ComputePpacPosition(
-	const glimmer::PpacEvent &ppac,
+	const forgerib::PpacEvent &ppac,
 	int base_bit,
 	int anode_bit,
 	double &x,
@@ -94,11 +87,14 @@ int main(int argc, char **argv) {
 		kTofMax = double(atoi(argv[3]));
 	}
 
-	toml::table tbl = toml::parse_file("config.toml");
-	std::string workspace = GetRequired(tbl, "workspace");
+	forgerib::AppConfig config;
+	if (forgerib::LoadConfig("config.toml", config)) {
+		return -1;
+	}
+	std::string ingot_dir = forgerib::JoinPath(config.workspace, config.paths.ingot);
 
-	TString ppac_path = TString::Format("%s/forge/ppac_%04d.root", workspace.c_str(), run);
-	TString beam_path = TString::Format("%s/forge/beam_%04d.root", workspace.c_str(), run);
+	TString ppac_path = TString::Format("%s/ppac_%04d.root", ingot_dir.c_str(), run);
+	TString beam_path = TString::Format("%s/beam_%04d.root", ingot_dir.c_str(), run);
 
 	TFile ppac_file(ppac_path, "read");
 	TTree *tree = (TTree*)ppac_file.Get("tree");
@@ -115,10 +111,10 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	glimmer::PpacEvent ppac;
-	glimmer::BeamEvent beam;
-	glimmer::SetupInput(tree, ppac, "");
-	glimmer::SetupInput(beam_tree, beam, "");
+	forgerib::PpacEvent ppac;
+	forgerib::BeamEvent beam;
+	forgerib::SetupInput(tree, ppac, "");
+	forgerib::SetupInput(beam_tree, beam, "");
 
 	int app_argc = 1;
 	char app_name[] = "gated_ppac";

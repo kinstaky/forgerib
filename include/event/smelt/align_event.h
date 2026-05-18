@@ -12,8 +12,8 @@ struct AlignEvent {
 	// entry after converted
 	long long vme_entry;
 	// in nanoseconds
-	long long xia_time;
-	long long vme_time;
+	double xia_time;
+	double vme_time;
 };
 
 void SetupInput(TTree *tree, AlignEvent &event, const std::string &prefix = "");

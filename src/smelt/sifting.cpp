@@ -65,11 +65,10 @@ Edge EdgeDetect(TH1F *hist, double threshold_factor) {
 
 
 int Sift(
-	const std::vector<long long> &xia_times,
+	const std::vector<double> &xia_times,
 	const std::vector<long long> &xia_entries,
-	const std::vector<long long> &vme_times,
+	const std::vector<double> &vme_times,
 	const std::vector<long long> &vme_entries,
-	//const long long xia_total_entries,
 	const char *output_path,
 	int group_num,
 	double search_window,

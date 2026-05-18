@@ -16,9 +16,9 @@ using namespace forgerib;
 
 int ReadXiaTimes(
 	const char *path,
-	std::vector<long long> &times,
+	std::vector<double> &times,
+	std::vector<double> &external_times,
 	std::vector<long long> &entries,
-	bool external,
 	bool report = false
 ) {
 	TFile ipf(path, "read");
@@ -31,6 +31,7 @@ int ReadXiaTimes(
 	forgerib::SetupInput(ipt, trigger_event);
 
 	times.clear();
+	external_times.clear();
 	entries.clear();
 	if (report) {
 		printf("Reading XIA times   0%%");
@@ -46,11 +47,8 @@ int ReadXiaTimes(
 		}
 		ipt->GetEntry(entry);
 		if (trigger_event.valid[1]) {
-			times.push_back(
-				external
-				? trigger_event.external_time[1] * 200
-				: static_cast<long long>(trigger_event.time[1])
-			);
+			times.push_back(trigger_event.time[1]);
+			external_times.push_back(trigger_event.external_time[1]*200.0);
 			entries.push_back(entry);
 		}
 	}
@@ -63,7 +61,7 @@ int ReadXiaTimes(
 
 int ReadVmeTriggerTimes(
 	const char *path,
-	std::vector<long long> &times,
+	std::vector<double> &times,
 	std::vector<long long> &entries,
 	bool report = false
 ) {
@@ -105,7 +103,7 @@ int ReadVmeTriggerTimes(
 		}
 		last_timestamp = timestamp;
 
-		times.push_back(timestamp);
+		times.push_back(double(timestamp));
 		entries.push_back(entry);
 	}
 	if (report) printf("\b\b\b\b100%%\n");
@@ -168,7 +166,8 @@ int main(int argc, char **argv) {
 	const std::string grain_dir = JoinPath(config.workspace, config.paths.grain);
 	const std::string ingot_dir = JoinPath(config.workspace, config.paths.ingot);
 
-	std::vector<long long> xia_times;
+	std::vector<double> xia_times;
+	std::vector<double> xia_external_times;
 	std::vector<long long> xia_entries;
 	TString xia_filename = TString::Format(
 		"%s/trigger_%04d.root",
@@ -178,15 +177,15 @@ int main(int argc, char **argv) {
 	if (ReadXiaTimes(
 		xia_filename.Data(),
 		xia_times,
+		xia_external_times,
 		xia_entries,
-		external,
 		true
 	)) {
 		std::cerr << "Error: Read XIA times failed.\n";
 		return -2;
 	}
 
-	std::vector<long long> vme_times;
+	std::vector<double> vme_times;
 	std::vector<long long> vme_entries;
 	TString vme_trigger_filename = TString::Format(
 		"%s/trigger_vme_%s%04d.root",
@@ -230,7 +229,7 @@ int main(int argc, char **argv) {
 		window = found_window->second;
 	}
 	int result = Sift(
-		xia_times,
+		(external ? xia_external_times : xia_times),
 		xia_entries,
 		vme_times,
 		vme_entries,

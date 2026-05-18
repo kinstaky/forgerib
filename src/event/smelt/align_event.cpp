@@ -12,8 +12,8 @@ void SetupInput(TTree *tree, AlignEvent &event, const std::string &prefix) {
 void SetupOutput(TTree *tree, AlignEvent &event) {
 	tree->Branch("vme_entry", &event.vme_entry, "ve/L");
 	tree->Branch("xia_entry", &event.xia_entry, "xe/L");
-	tree->Branch("vme_time", &event.vme_time, "vt/L");
-	tree->Branch("xia_time", &event.xia_time, "xt/L");
+	tree->Branch("vme_time", &event.vme_time, "vt/D");
+	tree->Branch("xia_time", &event.xia_time, "xt/D");
 }
 
 

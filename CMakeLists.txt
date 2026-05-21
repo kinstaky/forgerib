@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # Set project properties.
 project(
-	glimmer
+	forgerib
 	VERSION 1.0.0
 	DESCRIPTION "A project for analysis RIBLL2026 experiment data."
 	LANGUAGES CXX C

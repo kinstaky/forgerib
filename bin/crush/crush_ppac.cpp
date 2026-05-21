@@ -7,7 +7,7 @@
 #include <TTree.h>
 
 #include "include/config.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/ore/raw_ppac_event.h"
 
 namespace {

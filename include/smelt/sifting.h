@@ -14,12 +14,11 @@ int Sift(
 	const std::vector<double> &vme_times,
 	const std::vector<long long> &vme_entries,
 	const char *output_path,
-	int group_num,
-	double search_window,
-	double search_low_bound,
-	double search_high_bound,
-	bool report = false,
-	bool verbose = false
+	const double window,
+	const size_t range = 1000,
+	const size_t vme_window = 5000,
+	const size_t xia_window = 10000,
+	bool report = false
 );
 
 } // namespace forgerib

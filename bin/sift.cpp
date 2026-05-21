@@ -8,8 +8,8 @@
 #include "external/cxxopts.hpp"
 
 #include "include/config.h"
-#include "include/crush/util.h"
-#include "include/event/ingot/trigger_event.h"
+#include "include/util.h"
+#include "include/event/ore/raw_trigger_event.h"
 #include "include/smelt/sifting.h"
 
 using namespace forgerib;
@@ -27,7 +27,7 @@ int ReadXiaTimes(
 		std::cerr << "Error: Get tree from " << path << " failed.\n";
 		return -1;
 	}
-	forgerib::TriggerEvent trigger_event;
+	forgerib::RawTriggerEvent trigger_event;
 	forgerib::SetupInput(ipt, trigger_event);
 
 	times.clear();
@@ -46,9 +46,9 @@ int ReadXiaTimes(
 			fflush(stdout);
 		}
 		ipt->GetEntry(entry);
-		if (trigger_event.valid[1]) {
-			times.push_back(trigger_event.time[1]);
-			external_times.push_back(trigger_event.external_time[1]*200.0);
+		if (trigger_event.type == 1) {
+			times.push_back(trigger_event.time);
+			external_times.push_back(trigger_event.external_time);
 			entries.push_back(entry);
 		}
 	}
@@ -58,8 +58,7 @@ int ReadXiaTimes(
 	return 0;
 }
 
-
-int ReadVmeTriggerTimes(
+int ReadVmeTimes(
 	const char *path,
 	std::vector<double> &times,
 	std::vector<long long> &entries,
@@ -71,11 +70,8 @@ int ReadVmeTriggerTimes(
 		std::cerr << "Error: get tree from " << path << " failed.\n";
 		return -1;
 	}
-
-	bool valid = false;
-	long long time = 0;
-	ipt->SetBranchAddress("valid", &valid);
-	ipt->SetBranchAddress("time", &time);
+	unsigned long long sdc[32];
+	ipt->SetBranchAddress("sdc", sdc);
 
 	times.clear();
 	entries.clear();
@@ -95,8 +91,8 @@ int ReadVmeTriggerTimes(
 		}
 
 		ipt->GetEntry(entry);
-		if (!valid || time == 0) continue;
-		long long timestamp = (time + bit_flip_offset) * 200;
+		if (sdc[1] == 0) continue;
+		long long timestamp = (sdc[1] + bit_flip_offset) * 200;
 		if (timestamp < last_timestamp) {
 			bit_flip_offset += 1ll << 32;
 			timestamp += (1ll << 32) * 200;
@@ -110,6 +106,7 @@ int ReadVmeTriggerTimes(
 	ipf.Close();
 	return 0;
 }
+
 
 int main(int argc, char **argv) {
 	cxxopts::Options options("sift", "sift trigger alignment");
@@ -131,12 +128,6 @@ int main(int argc, char **argv) {
 			"e,external",
 			"Use XIA's external timestamp.",
 			cxxopts::value<bool>()->default_value("false")
-		)
-		(
-			"t,trigger",
-			"VME trigger source: taf or t1. Omit to read all VME sdc.",
-			cxxopts::value<std::string>()->default_value(""),
-			"trigger"
 		);
 	auto parse_result = options.parse(argc, argv);
 
@@ -151,27 +142,22 @@ int main(int argc, char **argv) {
 	int xia_run = parse_result["xia_run"].as<int>();
 	int vme_run = parse_result["vme_run"].as<int>();
 	bool external = parse_result["external"].as<bool>();
-	std::string trigger = parse_result["trigger"].as<std::string>();
-	if (trigger != "" && trigger != "taf" && trigger != "t1") {
-		std::cerr << "Error: Unsupported trigger option " << trigger
-			<< ", use taf or t1.\n";
-		return -1;
-	}
 
 	AppConfig config;
 	if (LoadConfig("config.toml", config)) {
 		return -1;
 	}
 	const std::string grit_dir = JoinPath(config.workspace, config.paths.grit);
+	const std::string vme_dir = JoinPath(config.workspace, config.paths.raw_vme);
 	const std::string grain_dir = JoinPath(config.workspace, config.paths.grain);
-	const std::string ingot_dir = JoinPath(config.workspace, config.paths.ingot);
+	const std::string vme_prefix = config.prefix.raw_vme;
 
 	std::vector<double> xia_times;
 	std::vector<double> xia_external_times;
 	std::vector<long long> xia_entries;
 	TString xia_filename = TString::Format(
 		"%s/trigger_%04d.root",
-		ingot_dir.c_str(),
+		grit_dir.c_str(),
 		xia_run
 	);
 	if (ReadXiaTimes(
@@ -187,14 +173,14 @@ int main(int argc, char **argv) {
 
 	std::vector<double> vme_times;
 	std::vector<long long> vme_entries;
-	TString vme_trigger_filename = TString::Format(
-		"%s/trigger_vme_%s%04d.root",
-		grit_dir.c_str(),
-		trigger.empty() ? "" : (trigger+"_").c_str(),
+	TString vme_filename = TString::Format(
+		"%s/%s%04d.root",
+		vme_dir.c_str(),
+		vme_prefix.c_str(),
 		vme_run
 	);
-	if (ReadVmeTriggerTimes(
-		vme_trigger_filename.Data(),
+	if (ReadVmeTimes(
+		vme_filename,
 		vme_times,
 		vme_entries,
 		true
@@ -204,41 +190,21 @@ int main(int argc, char **argv) {
 	}
 
 	TString output_file = TString::Format(
-		"%s/grain_%s%04d.root",
+		"%s/grain_%04d.root",
 		grain_dir.c_str(),
-		trigger.empty() ? "" : (trigger+"_").c_str(),
 		xia_run
 	);
 
-	std::map<int, int> group_num_table = {
-		{90, 30},
-		{160, 1000}
-	};
-	int group_num = 300;
-	auto found = group_num_table.find(xia_run);
-	if (found != group_num_table.end()) {
-		group_num = found->second;
-	}
-
-	double window = 3'000'000;
-	std::map<int, double> window_table = {
-		{160, 100'000}
-	};
-	auto found_window = window_table.find(xia_run);
-	if (found_window != window_table.end()) {
-		window = found_window->second;
-	}
 	int result = Sift(
 		(external ? xia_external_times : xia_times),
 		xia_entries,
 		vme_times,
 		vme_entries,
 		output_file,
-		group_num,
-		window,
-		-10'000'000'000,
-		10'000'000'000,
-		true,
+		10000,
+		10,
+		5000,
+		10000,
 		true
 	);
 

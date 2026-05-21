@@ -11,6 +11,7 @@ struct TriggerEvent {
 	bool valid[6];
 	double time[6];
 	long long external_time[6];
+	long long vme_entry;
 };
 
 void SetupInput(TTree *tree, TriggerEvent &event, const std::string &prefix = "");

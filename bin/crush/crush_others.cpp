@@ -7,7 +7,7 @@
 #include <TTree.h>
 
 #include "include/config.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/ore/raw_csi_event.h"
 #include "include/event/ore/raw_ssd_event.h"
 

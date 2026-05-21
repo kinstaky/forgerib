@@ -11,7 +11,7 @@
 #include <TTree.h>
 
 #include "include/config.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/smelt/beam_event.h"
 #include "include/event/smelt/ppac_event.h"
 

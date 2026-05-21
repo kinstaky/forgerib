@@ -8,11 +8,11 @@
 ./build/bin/crush/crush_t0d3 $1
 ./build/bin/crush/crush_t0d4 $1
 ./build/bin/crush/crush_others $1
-# coke trigger
-./build/bin/coke -r $1
 ./build/bin/crush_vme -v $1
-./build/bin/smelt/sift -x $1 -v $1 -t t1
-./build/bin/smelt/smelt -r $1 -v $1 -t t1 t0d1 t0d2 t0d3 t0d4 t0s t0csi ppac
+./build/bin/sift -x $1 -v $1
+./build/bin/coke -r $1
+./build/bin/smelt -r $1 -v $1 -t t1 t0d1 t0d2 t0d3 t0d4 t0s t0csi ppac tafd tafcsi t1csiu t1csid t1du t1dd t1sd t1su beam
+./build/bin/smelt -r $1 -v $1 -t main t0d1 t0d2 t0d3 t0d4 t0s t0csi ppac beam
 
 
  

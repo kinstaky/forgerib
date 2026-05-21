@@ -7,7 +7,7 @@
 
 #include "include/config.h"
 #include "include/crush/raw_reader.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 
 namespace {
 

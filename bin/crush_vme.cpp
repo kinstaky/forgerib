@@ -10,7 +10,7 @@
 
 #include "external/cxxopts.hpp"
 #include "include/config.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/smelt/beam_event.h"
 #include "include/event/smelt/csi_event.h"
 #include "include/event/smelt/dssd_event.h"
@@ -58,6 +58,21 @@ constexpr std::array<int, 15> kPpacGdcChannels = {{
 	31, 30, 29, 28,
 	27, 19, 18
 }};
+
+const double FRONT_THRESHOLD[32] = {
+	134.39, 139.46, 137.46, 153.02, 147.21, 123.26, 163.52, 130.32,
+	152.18, 153.25, 174.97, 152.43, 158.71, 149.51, 173.21, 187.43,
+	179.67, 144.24, 172.03, 141.84, 190.34, 163.60, 163.31, 181.34,
+	173.63, 155.25, 180.10, 154.18, 197.76, 165.05, 178.67, 163.81
+};
+
+
+const double BACK_THRESHOLD[32]  = {
+	113.18, 94.49, 106.83, 116.06, 99.32 , 111.81, 105.56, 93.52 ,
+	115.34, 98.58 , 105.57, 110.67, 129.47, 121.67, 106.32, 131.92,
+	135.48, 114.48, 163.53, 104.43, 96.51 , 113.71, 121.02, 133.88,
+	106.83, 111.42, 104.82, 105.00, 106.98, 140.41, 129.71, 131.43
+};
 
 ChannelRef TafdFrontChannel(int det, int strip) {
 	return {det / 2, strip + (det % 2) * 16};
@@ -236,7 +251,7 @@ void FillDssdEvent(
 	for (int strip = 0; strip < 32; ++strip) {
 		ChannelRef front = T1FrontChannel(up, strip);
 		int front_energy = AdcEnergy(input, front);
-		if (front_energy >= 300 && input.gmulti[time_bank][time_base + strip] > 0) {
+		if (front_energy >= FRONT_THRESHOLD[strip] && input.gmulti[time_bank][time_base + strip] > 0) {
 			InsertDssdHit(
 				strip,
 				front_energy,
@@ -250,7 +265,7 @@ void FillDssdEvent(
 
 		ChannelRef back = T1BackChannel(up, strip);
 		int back_energy = AdcEnergy(input, back);
-		if (back_energy >= 300) {
+		if (back_energy >= BACK_THRESHOLD[strip]) {
 			InsertDssdHit(
 				strip,
 				back_energy,

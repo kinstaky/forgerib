@@ -5,17 +5,8 @@
 
 namespace forgerib {
 
-int SmeltT0CsiWithXiaTrigger(
-	const std::vector<AlignEvent> &align_events,
-	const char *xia_csi_path,
-	const char *vme_csi_path,
-	const char *output_path,
-	bool report = false
-);
-
-
-int SmeltT0CsiWithVmeTrigger(
-	const std::vector<AlignEvent> &align_events,
+int SmeltT0Csi(
+	const std::vector<long long> &vme_entries,
 	const char *xia_csi_path,
 	const char *vme_csi_path,
 	const char *output_path,

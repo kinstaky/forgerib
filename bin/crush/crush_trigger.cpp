@@ -6,7 +6,7 @@
 
 #include "include/config.h"
 #include "include/crush/raw_reader.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/ore/decode_event.h"
 #include "include/event/ore/raw_trigger_event.h"
 

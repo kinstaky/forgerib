@@ -10,10 +10,9 @@
 #include "external/cxxopts.hpp"
 
 #include "include/config.h"
-#include "include/crush/util.h"
+#include "include/util.h"
 #include "include/event/ingot/trigger_event.h"
 #include "include/event/ore/raw_trigger_event.h"
-#include "include/event/smelt/align_event.h"
 #include "include/event/smelt/csi_event.h"
 #include "include/event/smelt/dssd_event.h"
 #include "include/event/smelt/tafd_event.h"
@@ -82,30 +81,29 @@ TString IngotTriggeredPath(
 	);
 }
 
-TString GrainPath(
-	const std::string &grain_dir,
-	const std::string &trigger_type,
-	int run
-) {
-	return TString::Format(
-		"%s/grain_%s%04d.root",
-		grain_dir.c_str(),
-		TriggerStem(trigger_type).c_str(),
-		run
-	);
-}
+// TString GrainPath(
+// 	const std::string &grain_dir,
+// 	const std::string &trigger_type,
+// 	int run
+// ) {
+// 	return TString::Format(
+// 		"%s/grain_%s%04d.root",
+// 		grain_dir.c_str(),
+// 		TriggerStem(trigger_type).c_str(),
+// 		run
+// 	);
+// }
 
-int ReadMainTrigger(
-	const std::string &ingot_dir,
-	int run,
+int ReadTrigger(
+	const char *path,
 	std::vector<double> &trigger,
+	std::vector<long long> &vme_entries,
 	bool report = false
 ) {
-	TString filename = TString::Format("%s/trigger_%04d.root", ingot_dir.c_str(), run);
-	TFile ipf(filename, "read");
+	TFile ipf(path, "read");
 	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
 	if (!ipt) {
-		std::cerr << "Error: Get tree from " << filename << " failed.\n";
+		std::cerr << "Error: Get tree from " << path << " failed.\n";
 		return -1;
 	}
 
@@ -113,6 +111,7 @@ int ReadMainTrigger(
 	forgerib::SetupInput(ipt, trigger_event);
 
 	trigger.clear();
+	vme_entries.clear();
 	if (report) {
 		printf("Reading trigger   0%%");
 		fflush(stdout);
@@ -128,6 +127,7 @@ int ReadMainTrigger(
 		ipt->GetEntry(entry);
 		if (!trigger_event.valid[forgerib::kTriggerMain]) continue;
 		trigger.push_back(trigger_event.time[forgerib::kTriggerMain]);
+		vme_entries.push_back(trigger_event.vme_entry);
 	}
 	if (report) {
 		printf("\b\b\b\b100%%\n");
@@ -136,100 +136,18 @@ int ReadMainTrigger(
 	return 0;
 }
 
-int ReadOtherTrigger(
-	const std::string &grain_dir,
-	const std::string &trigger_type,
-	int run,
-	std::vector<double> &trigger,
-	bool report = false
-) {
-	TString filename = GrainPath(grain_dir, trigger_type, run);
-	TFile ipf(filename, "read");
-	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
-	if (!ipt) {
-		std::cerr << "Error: Get tree from " << filename << " failed.\n";
-		return -1;
-	}
-
-	AlignEvent align_event;
-	forgerib::SetupInput(ipt, align_event);
-
-	trigger.clear();
-	if (report) {
-		printf("Reading trigger   0%%");
-		fflush(stdout);
-	}
-	long long total = ipt->GetEntries();
-	long long last_percentage = 0;
-	for (long long entry = 0; entry < total; ++entry) {
-		if (report && total > 0 && entry * 100ll / total > last_percentage) {
-			last_percentage = entry * 100ll / total;
-			printf("\b\b\b\b%3lld%%", last_percentage);
-			fflush(stdout);
-		}
-		ipt->GetEntry(entry);
-		trigger.push_back(align_event.xia_time);
-	}
-	if (report) {
-		printf("\b\b\b\b100%%\n");
-	}
-	ipf.Close();
-	return 0;
-}
-
-int ReadAlignEvents(
-	const std::string &grain_dir,
-	const std::string &trigger_type,
-	int run,
-	std::vector<AlignEvent> &events,
-	bool report = false
-) {
-	TString filename = GrainPath(grain_dir, trigger_type, run);
-	TFile ipf(filename, "read");
-	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
-	if (!ipt) {
-		std::cerr << "Error: Get tree from " << filename << " failed.\n";
-		return -1;
-	}
-
-	AlignEvent align_event;
-	forgerib::SetupInput(ipt, align_event);
-
-	events.clear();
-	if (report) {
-		printf("Reading align events   0%%");
-		fflush(stdout);
-	}
-	long long total = ipt->GetEntries();
-	long long last_percentage = 0;
-	for (long long entry = 0; entry < total; ++entry) {
-		if (report && total > 0 && entry * 100ll / total > last_percentage) {
-			last_percentage = entry * 100ll / total;
-			printf("\b\b\b\b%3lld%%", last_percentage);
-			fflush(stdout);
-		}
-		ipt->GetEntry(entry);
-		events.push_back(align_event);
-	}
-	if (report) {
-		printf("\b\b\b\b100%%\n");
-	}
-	ipf.Close();
-	return 0;
-}
-
-long long GetXiaTotal(const std::string &ingot_dir, int run) {
-	TString filename = TString::Format("%s/trigger_%04d.root", ingot_dir.c_str(), run);
-	TFile ipf(filename, "read");
-	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
-	if (!ipt) {
-		std::cerr << "Error: Get tree from " << filename << " failed.\n";
-		return -1;
-	}
-	const long long total = ipt->GetEntries();
-	ipf.Close();
-	return total;
-}
+// long long GetXiaTotal(const std::string &ingot_dir, int run) {
+// 	TString filename = TString::Format("%s/trigger_%04d.root", ingot_dir.c_str(), run);
+// 	TFile ipf(filename, "read");
+// 	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
+// 	if (!ipt) {
+// 		std::cerr << "Error: Get tree from " << filename << " failed.\n";
+// 		return -1;
+// 	}
+// 	const long long total = ipt->GetEntries();
+// 	ipf.Close();
+// 	return total;
+// }
 
 bool NeedsVmeRun(const std::string &detector) {
 	return detector == "t0csi"
@@ -238,7 +156,8 @@ bool NeedsVmeRun(const std::string &detector) {
 		|| detector == "t1dd"
 		|| detector == "t1csiu"
 		|| detector == "t1csid"
-		|| detector == "tafd";
+		|| detector == "tafd"
+		|| detector == "tafcsi";
 }
 
 } // namespace
@@ -279,7 +198,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector list: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, t1du, t1dd, t1csiu, t1csid, tafd",
+			"Detector list: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, t1du, t1dd, t1csiu, t1csid, tafd, tafcsi",
 			cxxopts::value<std::vector<std::string>>(),
 			"detector"
 		);
@@ -326,9 +245,9 @@ int main(int argc, char **argv) {
 	const std::string trigger_type = parse_result.count("trigger")
 		? parse_result["trigger"].as<std::string>()
 		: config.trigger;
-	if (trigger_type != "main" && trigger_type != "taf" && trigger_type != "t1") {
+	if (trigger_type != "main" && trigger_type != "t1") {
 		std::cerr << "Error: Unsupported trigger " << trigger_type
-			<< ", use main, taf, or t1.\n";
+			<< ", use main or t1.\n";
 		return -1;
 	}
 
@@ -350,29 +269,16 @@ int main(int argc, char **argv) {
 	const std::string ingot_dir = forgerib::JoinPath(config.workspace, config.paths.ingot);
 
 	std::vector<double> triggers;
-	if (trigger_type == "main") {
-		if (ReadMainTrigger(ingot_dir, xia_run, triggers, true)) {
-			std::cerr << "Error: Read main trigger failed.\n";
-			return -1;
-		}
-	} else {
-		if (ReadOtherTrigger(grain_dir, trigger_type, xia_run, triggers, true)) {
-			std::cerr << "Error: Read " << trigger_type << " trigger failed.\n";
-			return -1;
-		}
-	}
-
-	std::vector<AlignEvent> align_events;
-	long long xia_total_entries = 0;
-	if (require_vme) {
-		if (ReadAlignEvents(grain_dir, trigger_type, xia_run, align_events, true)) {
-			std::cerr << "Error: Read align events failed.\n";
-			return -1;
-		}
-		xia_total_entries = GetXiaTotal(ingot_dir, xia_run);
-		if (xia_total_entries < 0) {
-			return -1;
-		}
+	std::vector<long long> vme_entries;
+	TString trigger_path = TString::Format(
+		"%s/trigger_%s%04d.root",
+		ingot_dir.c_str(),
+		TriggerStem(trigger_type).c_str(),
+		xia_run
+	);
+	if (ReadTrigger(trigger_path.Data(), triggers, vme_entries, true)) {
+		std::cerr << "Error: Read trigger failed.\n";
+		return -1;
 	}
 
 	for (std::string detector : detectors) {
@@ -472,119 +378,62 @@ int main(int argc, char **argv) {
 					trigger_type,
 					xia_run
 				);
-				if (trigger_type == "main") {
-					result = forgerib::SmeltT0CsiWithXiaTrigger(
-						align_events,
-						bloom_path.Data(),
-						GritVmeInputPath(grit_dir, "t0csi", vme_run).Data(),
-						output_path.Data(),
-						true
-					);
-				} else {
-					result = forgerib::SmeltT0CsiWithVmeTrigger(
-						align_events,
-						bloom_path.Data(),
-						GritVmeInputPath(grit_dir, "t0csi", vme_run).Data(),
-						output_path.Data(),
-						true
-					);
-				}
+				result = forgerib::SmeltT0Csi(
+					vme_entries,
+					bloom_path.Data(),
+					GritVmeInputPath(grit_dir, "t0csi", vme_run).Data(),
+					output_path.Data(),
+					true
+				);
 			}
 		} else if (detector == "t1du") {
-			if (trigger_type == "main") {
-				result = forgerib::SmeltDetectorWithXiaTrigger<forgerib::DssdEvent>(
-					align_events,
-					xia_total_entries,
-					GritVmeInputPath(grit_dir, "t1du", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1du", trigger_type, xia_run).Data(),
-					"t1du",
-					true
-				);
-			} else {
-				result = forgerib::SmeltDetectorWithVmeTrigger<forgerib::DssdEvent>(
-					align_events,
-					GritVmeInputPath(grit_dir, "t1du", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1du", trigger_type, xia_run).Data(),
-					"t1du",
-					true
-				);
-			}
+			result = forgerib::SmeltDetector<forgerib::DssdEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "t1du", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "t1du", trigger_type, xia_run).Data(),
+				"t1du",
+				true
+			);
 		} else if (detector == "t1dd") {
-			if (trigger_type == "main") {
-				result = forgerib::SmeltDetectorWithXiaTrigger<forgerib::DssdEvent>(
-					align_events,
-					xia_total_entries,
-					GritVmeInputPath(grit_dir, "t1dd", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1dd", trigger_type, xia_run).Data(),
-					"t1dd",
-					true
-				);
-			} else {
-				result = forgerib::SmeltDetectorWithVmeTrigger<forgerib::DssdEvent>(
-					align_events,
-					GritVmeInputPath(grit_dir, "t1dd", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1dd", trigger_type, xia_run).Data(),
-					"t1dd",
-					true
-				);
-			}
+			result = forgerib::SmeltDetector<forgerib::DssdEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "t1dd", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "t1dd", trigger_type, xia_run).Data(),
+				"t1dd",
+				true
+			);
 		} else if (detector == "t1csiu") {
-			if (trigger_type == "main") {
-				result = forgerib::SmeltDetectorWithXiaTrigger<forgerib::CsiEvent>(
-					align_events,
-					xia_total_entries,
-					GritVmeInputPath(grit_dir, "t1csiu", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1csiu", trigger_type, xia_run).Data(),
-					"t1csiu",
-					true
-				);
-			} else {
-				result = forgerib::SmeltDetectorWithVmeTrigger<forgerib::CsiEvent>(
-					align_events,
-					GritVmeInputPath(grit_dir, "t1csiu", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1csiu", trigger_type, xia_run).Data(),
-					"t1csiu",
-					true
-				);
-			}
+			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "t1csiu", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "t1csiu", trigger_type, xia_run).Data(),
+				"t1csiu",
+				true
+			);
 		} else if (detector == "t1csid") {
-			if (trigger_type == "main") {
-				result = forgerib::SmeltDetectorWithXiaTrigger<forgerib::CsiEvent>(
-					align_events,
-					xia_total_entries,
-					GritVmeInputPath(grit_dir, "t1csid", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1csid", trigger_type, xia_run).Data(),
-					"t1csid",
-					true
-				);
-			} else {
-				result = forgerib::SmeltDetectorWithVmeTrigger<forgerib::CsiEvent>(
-					align_events,
-					GritVmeInputPath(grit_dir, "t1csid", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "t1csid", trigger_type, xia_run).Data(),
-					"t1csid",
-					true
-				);
-			}
+			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "t1csid", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "t1csid", trigger_type, xia_run).Data(),
+				"t1csid",
+				true
+			);
 		} else if (detector == "tafd") {
-			if (trigger_type == "main") {
-				result = forgerib::SmeltDetectorWithXiaTrigger<forgerib::TafdEvent>(
-					align_events,
-					xia_total_entries,
-					GritVmeInputPath(grit_dir, "tafd", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "tafd", trigger_type, xia_run).Data(),
-					"tafd",
-					true
-				);
-			} else {
-				result = forgerib::SmeltDetectorWithVmeTrigger<forgerib::TafdEvent>(
-					align_events,
-					GritVmeInputPath(grit_dir, "tafd", vme_run).Data(),
-					IngotOutputPath(ingot_dir, "tafd", trigger_type, xia_run).Data(),
-					"tafd",
-					true
-				);
-			}
+			result = forgerib::SmeltDetector<forgerib::TafdEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "tafd", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "tafd", trigger_type, xia_run).Data(),
+				"tafd",
+				true
+			);
+		} else if (detector == "tafcsi") {
+			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "tafcsi", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "tafcsi", trigger_type, xia_run).Data(),
+				"tafcsi",
+				true
+			);
 		} else {
 			std::cerr << "Error: Unsupported detector " << detector << ".\n";
 			return -1;

@@ -21,3 +21,6 @@ target_link_libraries(crush_t0d4 PRIVATE config crusher raw_dssd_event)
 
 add_executable(crush_others crush_others.cpp)
 target_link_libraries(crush_others PRIVATE config crusher raw_csi_event raw_ssd_event)
+
+add_executable(crush_t0csi_trace crush_t0csi_trace.cpp)
+target_link_libraries(crush_t0csi_trace PRIVATE config crusher raw_csi_event)

@@ -269,6 +269,12 @@ int main(int argc, char **argv) {
 			"run"
 		)
 		(
+			"v,vme_run",
+			"VME run number, required.",
+			cxxopts::value<int>(),
+			"run"
+		)
+		(
 			"c,config",
 			"Config file path.",
 			cxxopts::value<std::string>()->default_value("config.toml"),
@@ -282,6 +288,7 @@ int main(int argc, char **argv) {
 	}
 
 	const int run = parse_result["run"].as<int>();
+	const int vme_run = parse_result["vme_run"].as<int>();
 	const std::string config_path = parse_result["config"].as<std::string>();
 
 	forgerib::AppConfig config;
@@ -303,7 +310,7 @@ int main(int argc, char **argv) {
 	TString vme_trigger_path = TString::Format(
 		"%s/trigger_vme_t1_%04d.root",
 		grit_dir.c_str(),
-		run
+		vme_run
 	);
 	TString full_output_path = TString::Format(
 		"%s/trigger_%04d.root",

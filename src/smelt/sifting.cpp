@@ -50,8 +50,8 @@ int Sift(
 		double xia_dt1 = xia_times[anchor_xia] - xia_times[anchor_xia-1];
 		for (anchor_vme = 0; anchor_vme < vme_window-2; ++anchor_vme) {
 			if (
-				fabs(vme_dt[anchor_vme]-xia_dt0) < 20*200
-				&& fabs(vme_dt[anchor_vme+1]-xia_dt1) < 20*200
+				fabs(vme_dt[anchor_vme]-xia_dt0) <  window
+				&& fabs(vme_dt[anchor_vme+1]-xia_dt1) < window
 			) {
 				found = true;
 				anchor_vme += 2;
@@ -87,7 +87,8 @@ int Sift(
 	}
 	size_t last_percentage = 0;
 	// search residual events
-	while (anchor_xia < xia_times.size()-1 && anchor_vme < vme_times.size()-1) {
+	bool is_lookhead = true;
+	while (anchor_xia < xia_times.size()-1 && anchor_vme < vme_times.size()-1 && is_lookhead) {
 		if (report && anchor_xia * 100 / xia_times.size() > last_percentage) {
 			last_percentage = anchor_xia * 100 / xia_times.size();
 			printf("\b\b\b\b%3lu%%", last_percentage);
@@ -113,12 +114,58 @@ int Sift(
 			}
 			if (match) break;
 		}
-		if (!match) {
-			std::cerr << "Try to match in next range "
-				<< range << "\n";
-			anchor_xia += range;
-			anchor_vme += range;
+		if (!match && !(anchor_xia+vme_window < xia_times.size()-1 && anchor_vme+xia_window < vme_times.size()-1))
+		{
+			is_lookhead = false;  
 		}
+		if (!match && anchor_xia+vme_window < xia_times.size()-1 && anchor_vme+xia_window < vme_times.size()-1)
+		{
+			std::cout << "Matching stalled at XIA idx " << anchor_xia << ". Re-anchoring..." << std::endl;
+			size_t ref_xia = anchor_xia + 1;
+	        size_t ref_vme = anchor_vme + 1;
+			found = false;
+			for (anchor_xia = ref_xia+2; anchor_xia < xia_window+ref_xia; ++anchor_xia)
+			{
+				double xia_dt0 = xia_times[anchor_xia-1] - xia_times[anchor_xia-2];
+				double xia_dt1 = xia_times[anchor_xia] - xia_times[anchor_xia-1];
+				for (anchor_vme = ref_vme; anchor_vme < vme_window+ref_vme-2; ++anchor_vme)
+				{
+					double vme_dt0 = vme_times[anchor_vme+1] - vme_times[anchor_vme];
+					double vme_dt1 = vme_times[anchor_vme+2] - vme_times[anchor_vme+1];
+					if (fabs(vme_dt0-xia_dt0) <  window && fabs(vme_dt1-xia_dt1) < window)
+					{
+						found = true;
+						anchor_vme += 2;
+						break;
+					}
+				}
+				if (found)
+				{
+					for (int i = 2; i >= 0; --i)
+					{
+						event.vme_entry = vme_entries[anchor_vme-i];
+						event.vme_time = vme_times[anchor_vme-i];
+						event.xia_entry = xia_entries[anchor_xia-i];
+						event.xia_time = xia_times[anchor_xia-i];
+						opt.Fill();
+						++align_events;
+					}
+				}
+				break;
+			}
+
+			if (!found)
+			{
+				std::cerr << "Could not find anchor in XIA window "
+				<< xia_window << ", VME window " << vme_window << ".\n";
+				return -1;
+			}
+
+			if (report) {
+				std::cout << "Anchor at XIA entry " << anchor_xia << ", VME entry " << anchor_vme << "\n";
+			}
+		}
+
 	}
 	if (report) printf("\b\b\b\b100%%\n");
 

@@ -13,6 +13,14 @@ int SmeltT0Csi(
 	bool report = false
 );
 
+int SmeltT0Csi_trace(
+	const std::vector<double> &trigger_time,
+	const char *path,
+	const char *output_path,
+	const double window = 1000,
+	bool report = false
+);
+
 }
 
 #endif

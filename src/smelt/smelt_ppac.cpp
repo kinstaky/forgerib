@@ -13,6 +13,8 @@
 
 namespace forgerib {
 
+namespace {
+
 constexpr size_t kSlotNum = 1000;
 
 void ResetPpacEvent(PpacEvent &ppac) {
@@ -192,6 +194,7 @@ int SmeltWithoutTrigger(
 	return 0;
 }
 
+}
 
 int SmeltPpac(
 	const std::vector<double> &trigger_time,

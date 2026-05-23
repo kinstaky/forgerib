@@ -19,6 +19,9 @@ target_link_libraries(smelt_t0csi_bloom PUBLIC csi_event raw_csi_event)
 add_library(smelt_t0csi smelt_t0csi.cpp)
 target_link_libraries(smelt_t0csi PUBLIC csi_event align_event)
 
+add_library(smelt_t0csi_trace smelt_t0csi_trace.cpp)
+target_link_libraries(smelt_t0csi_trace PUBLIC csi_event align_event)
+
 add_library(smelt_t0d3 smelt_t0d3.cpp)
 target_link_libraries(smelt_t0d3 PUBLIC dssd_event raw_dssd_event)
 

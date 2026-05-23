@@ -73,10 +73,10 @@ TString IngotTriggeredPath(
 	int run
 ) {
 	return TString::Format(
-		"%s/%s_%s_%04d.root",
+		"%s/%s_%s%04d.root",
 		ingot_dir.c_str(),
 		detector,
-		trigger_type.c_str(),
+		TriggerStem(trigger_type).c_str(),
 		run
 	);
 }
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector list: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, beam, t1du, t1dd, t1csiu, t1csid, tafd, tafcsi",
+			"Detector list: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, t0csi_trace, beam, t1du, t1dd, t1csiu, t1csid, tafd, tafcsi",
 			cxxopts::value<std::vector<std::string>>(),
 			"detector"
 		);
@@ -386,6 +386,26 @@ int main(int argc, char **argv) {
 					true
 				);
 			}
+		} else if (detector == "t0csi_trace") {
+			std::cout << "T0csi trace.\n";
+			const TString bloom_path = IngotTriggeredPath(
+				ingot_dir,
+				"t0csi_trace",
+				trigger_type,
+				xia_run
+			);
+			// std::cout << bloom_path.Data() << "\n";
+			// std::cout << GritInputPath(grit_dir, "t0csi_trace", xia_run).Data() << "\n";
+			// std::cout << __LINE__ << "\n";
+			result = forgerib::SmeltT0Csi_trace(
+				triggers,
+				GritInputPath(grit_dir, "t0csi_trace", xia_run).Data(),
+				bloom_path.Data(),
+				1000.0,
+				true
+			);
+			// std::cout << __LINE__ << "\n";
+
 		} else if (detector == "t1du") {
 			result = forgerib::SmeltDetector<forgerib::DssdEvent>(
 				vme_entries,

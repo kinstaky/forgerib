@@ -19,7 +19,7 @@ struct DecodeEvent {
 
 struct DecodeTraces {
 	size_t length;
-	const uint16_t *samples;
+	uint16_t samples[5000];
 	bool out_of_range;
 };
 

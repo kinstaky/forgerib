@@ -48,7 +48,7 @@ The main executables are created under `build/bin/`, including:
 
 ## Configuration
 
-Runtime configuration is read from [`config.toml`](/home/pupu/code/forgerib/config.toml). The important keys are:
+Runtime configuration is read from [`config.toml`](/home/pupu/code/forgerib/config.toml) by default. Most command-line tools in this pipeline also accept `-c, --config <path>` to override it. The important keys are:
 
 - `workspace`: base directory for generated outputs.
 - `trigger`: default trigger type.
@@ -85,7 +85,7 @@ bash scripts/forge.sh 123
 ./build/bin/crush/crush_t0d3 123
 ./build/bin/crush/crush_t0d4 123
 ./build/bin/crush/crush_others 123
-./build/bin/crush_vme -v 123
+./build/bin/crush_vme 123
 ./build/bin/sift -x 123 -v 123
 ./build/bin/coke -r 123
 ./build/bin/smelt -r 123 -v 123 -t t1 t0d1 t0d2 t0d3 t0d4 t0s t0csi ppac tafd tafcsi t1csiu t1csid t1du t1dd t1sd t1su beam
@@ -106,7 +106,7 @@ Useful direct invocations:
 
 ```bash
 ./build/bin/crush/crush_trigger 123
-./build/bin/crush_vme -v 123
+./build/bin/crush_vme 123
 ./build/bin/sift -x 123 -v 123
 ./build/bin/coke -r 123
 ./build/bin/smelt -r 123 -v 123 -t t1 t0d1 t0d2 t0d3 t0d4 t0s t0csi ppac tafd tafcsi t1csiu t1csid t1du t1dd t1sd t1su beam
@@ -120,6 +120,15 @@ You can also inspect command-line help for the tools that use `cxxopts`:
 ./build/bin/coke --help
 ./build/bin/smelt --help
 ./build/bin/crush_vme --help
+```
+
+Examples with an alternate config file:
+
+```bash
+./build/bin/crush/crush_trigger -c my-config.toml 123
+./build/bin/crush_vme -c my-config.toml 123
+./build/bin/sift -c my-config.toml -x 123 -v 123
+./build/bin/coke -c my-config.toml -r 123
 ```
 
 ## Notes

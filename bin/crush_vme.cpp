@@ -377,20 +377,29 @@ int main(int argc, char **argv) {
 	options.add_options()
 		("h,help", "Print usage")
 		(
-			"v,vme_run",
-			"VME run number, required.",
-			cxxopts::value<int>()
+			"c,config",
+			"Config file path.",
+			cxxopts::value<std::string>()->default_value("config.toml"),
+			"path"
+		)
+		(
+			"run",
+			"VME run number.",
+			cxxopts::value<int>(),
+			"run"
 		);
+	options.parse_positional({"run"});
 	auto parse_result = options.parse(argc, argv);
-	if (parse_result.count("help") || !parse_result.count("vme_run")) {
+	if (parse_result.count("help") || !parse_result.count("run")) {
 		std::cout << options.help() << std::endl;
 		return 0;
 	}
 
-	const int vme_run = parse_result["vme_run"].as<int>();
+	const int vme_run = parse_result["run"].as<int>();
+	const std::string config_path = parse_result["config"].as<std::string>();
 
 	AppConfig config;
-	if (LoadConfig("config.toml", config)) {
+	if (LoadConfig(config_path, config)) {
 		return -1;
 	}
 	const std::string output_dir = JoinPath(config.workspace, config.paths.grit);
@@ -477,18 +486,6 @@ int main(int argc, char **argv) {
 	trigger_tree.Branch("valid", &trigger_valid, "v/O");
 	trigger_tree.Branch("time", &trigger_time, "time/L");
 
-	TString trigger_taf_path = TString::Format(
-		"%s/trigger_vme_taf_%04d.root",
-		output_dir.c_str(),
-		vme_run
-	);
-	TFile trigger_taf_file(trigger_taf_path, "recreate");
-	TTree trigger_taf_tree("tree", "trigger vme taf");
-	bool trigger_taf_valid = false;
-	long long trigger_taf_time = 0;
-	trigger_taf_tree.Branch("valid", &trigger_taf_valid, "v/O");
-	trigger_taf_tree.Branch("time", &trigger_taf_time, "time/L");
-
 	TString trigger_t1_path = TString::Format(
 		"%s/trigger_vme_t1_%04d.root",
 		output_dir.c_str(),
@@ -524,14 +521,11 @@ int main(int argc, char **argv) {
 		FillBeamEvent(input, beam_event);
 		FillPpacEvent(input, ppac_event);
 		trigger_time = static_cast<long long>(input.sdc[1]);
-		trigger_taf_time = trigger_time;
 		trigger_t1_time = trigger_time;
-		trigger_taf_valid =
+		trigger_t1_valid =
 			HasTafdTrigger(tafd_event, 300)
 			|| HasCsiTrigger(tafcsi_event, 300)
-			|| HasCsiTrigger(t0csi_event, 300);
-		trigger_t1_valid =
-			trigger_taf_valid
+			|| HasCsiTrigger(t0csi_event, 300)
 			|| HasDssdTrigger(t1du_event)
 			|| HasDssdTrigger(t1dd_event)
 			|| HasCsiTrigger(t1dcsi_event, 300)
@@ -547,7 +541,6 @@ int main(int argc, char **argv) {
 		beam_tree.Fill();
 		ppac_tree.Fill();
 		trigger_tree.Fill();
-		trigger_taf_tree.Fill();
 		trigger_t1_tree.Fill();
 	}
 	printf("\b\b\b\b100%%\n");
@@ -591,10 +584,6 @@ int main(int argc, char **argv) {
 	trigger_file.cd();
 	trigger_tree.Write();
 	trigger_file.Close();
-
-	trigger_taf_file.cd();
-	trigger_taf_tree.Write();
-	trigger_taf_file.Close();
 
 	trigger_t1_file.cd();
 	trigger_t1_tree.Write();

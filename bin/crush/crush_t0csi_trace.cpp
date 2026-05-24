@@ -5,6 +5,7 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include "external/cxxopts.hpp"
 #include "external/toml.hpp"
 #include "include/event/ore/raw_csi_event.h"
 #include "include/event/ore/decode_event.h"
@@ -132,14 +133,32 @@ void DecodeT0CsIWithTrace(
 }
 
 int main(int argc, char **argv) {
-	if (argc != 2) {
-		std::cout << "Usage: " << argv[0] << " [run].\n";
-		return 1;
+	cxxopts::Options options("crush_t0csi_trace", "crush T0 CsI traces into ROOT output");
+	options.add_options()
+		("h,help", "Print usage")
+		(
+			"c,config",
+			"Config file path.",
+			cxxopts::value<std::string>()->default_value("config.toml"),
+			"path"
+		)
+		(
+			"run",
+			"Run number.",
+			cxxopts::value<int>(),
+			"run"
+		);
+	options.parse_positional({"run"});
+	auto parse_result = options.parse(argc, argv);
+	if (parse_result.count("help") || !parse_result.count("run")) {
+		std::cout << options.help() << "\n";
+		return 0;
 	}
-	const int run = atoi(argv[1]);
+	const int run = parse_result["run"].as<int>();
+	const std::string config_path = parse_result["config"].as<std::string>();
 
 	forgerib::AppConfig config;
-	if (forgerib::LoadConfig("config.toml", config)) {
+	if (forgerib::LoadConfig(config_path, config)) {
 		return -1;
 	}
 	const std::string output_dir = forgerib::JoinPath(

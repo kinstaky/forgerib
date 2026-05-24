@@ -113,6 +113,12 @@ int main(int argc, char **argv) {
 	options.add_options()
 		("h,help", "Print usage")
 		(
+			"c,config",
+			"Config file path.",
+			cxxopts::value<std::string>()->default_value("config.toml"),
+			"path"
+		)
+		(
 			"x,xia_run",
 			"XIA run number, required.",
 			cxxopts::value<int>(),
@@ -142,9 +148,10 @@ int main(int argc, char **argv) {
 	int xia_run = parse_result["xia_run"].as<int>();
 	int vme_run = parse_result["vme_run"].as<int>();
 	bool external = parse_result["external"].as<bool>();
+	const std::string config_path = parse_result["config"].as<std::string>();
 
 	AppConfig config;
-	if (LoadConfig("config.toml", config)) {
+	if (LoadConfig(config_path, config)) {
 		return -1;
 	}
 	const std::string grit_dir = JoinPath(config.workspace, config.paths.grit);

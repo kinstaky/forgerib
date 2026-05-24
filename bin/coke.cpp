@@ -264,13 +264,19 @@ int main(int argc, char **argv) {
 		("h,help", "Print usage")
 		(
 			"r,run",
-			"Run number, required.",
+			"XIA and VME run number.",
 			cxxopts::value<int>(),
 			"run"
 		)
 		(
-			"v,vme_run",
-			"VME run number, required.",
+			"x,xia-run",
+			"XIA run number, overwrite run.",
+			cxxopts::value<int>(),
+			"run"
+		)
+		(
+			"v,vme-run",
+			"VME run number, overwrite run.",
 			cxxopts::value<int>(),
 			"run"
 		)
@@ -282,13 +288,26 @@ int main(int argc, char **argv) {
 		);
 	auto parse_result = options.parse(argc, argv);
 
-	if (parse_result.count("help") || !parse_result.count("run")) {
+	if (
+		parse_result.count("help")
+		|| (
+			!parse_result.count("run")
+			&& !(
+				parse_result.count("xia-run")
+				&& parse_result.count("vme-run")
+			)
+		)
+	) {
 		std::cout << options.help() << "\n";
 		return 0;
 	}
 
-	const int run = parse_result["run"].as<int>();
-	const int vme_run = parse_result["vme_run"].as<int>();
+	const int xia_run = parse_result.count("xia-run")
+		? parse_result["xia-run"].as<int>()
+		: parse_result["run"].as<int>();
+	const int vme_run = parse_result.count("vme-run")
+		? parse_result["vme-run"].as<int>()
+		: parse_result["run"].as<int>();
 	const std::string config_path = parse_result["config"].as<std::string>();
 
 	forgerib::AppConfig config;
@@ -300,12 +319,12 @@ int main(int argc, char **argv) {
 	TString grain_path = TString::Format(
 		"%s/grain_%04d.root",
 		grain_dir.c_str(),
-		run
+		xia_run
 	);
 	TString trigger_path = TString::Format(
 		"%s/trigger_%04d.root",
 		grit_dir.c_str(),
-		run
+		xia_run
 	);
 	TString vme_trigger_path = TString::Format(
 		"%s/trigger_vme_t1_%04d.root",
@@ -315,12 +334,12 @@ int main(int argc, char **argv) {
 	TString full_output_path = TString::Format(
 		"%s/trigger_%04d.root",
 		output_dir.c_str(),
-		run
+		xia_run
 	);
 	TString t1_output_path = TString::Format(
 		"%s/trigger_t1_%04d.root",
 		output_dir.c_str(),
-		run
+		xia_run
 	);
 	return Coke(
 		grain_path.Data(),

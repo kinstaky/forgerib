@@ -30,7 +30,6 @@ constexpr int kGdcBankNum = 2;
 constexpr int kGdcChannelNum = 128;
 constexpr int kGdcMultiNum = 5;
 constexpr int kSdcChannelNum = 32;
-constexpr const char *kThresholdPath = "vme_threshold.toml";
 
 struct ChannelRef {
 	int module = -1;
@@ -498,17 +497,24 @@ int main(int argc, char **argv) {
 	options.add_options()
 		("h,help", "Print usage")
 		(
+			"run",
+			"VME run number.",
+			cxxopts::value<int>(),
+			"run"
+		)
+		(
 			"c,config",
 			"Config file path.",
 			cxxopts::value<std::string>()->default_value("config.toml"),
 			"path"
 		)
 		(
-			"run",
-			"VME run number.",
-			cxxopts::value<int>(),
-			"run"
-		);
+			"threshold",
+			"Threshold file path.",
+			cxxopts::value<std::string>()->default_value("vme_threshold.toml"),
+			"path"
+		)
+		;
 	options.parse_positional({"run"});
 	auto parse_result = options.parse(argc, argv);
 	if (parse_result.count("help") || !parse_result.count("run")) {
@@ -518,13 +524,14 @@ int main(int argc, char **argv) {
 
 	const int vme_run = parse_result["run"].as<int>();
 	const std::string config_path = parse_result["config"].as<std::string>();
+	const std::string threshold_path = parse_result["threshold"].as<std::string>();
 
 	AppConfig config;
 	if (LoadConfig(config_path, config)) {
 		return -1;
 	}
 	VmeThreshold threshold;
-	if (LoadVmeThreshold(kThresholdPath, threshold)) {
+	if (LoadVmeThreshold(threshold_path, threshold)) {
 		return -1;
 	}
 	const std::string output_dir = JoinPath(config.workspace, config.paths.grit);

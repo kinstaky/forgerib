@@ -12,8 +12,8 @@
 
 #include "include/config.h"
 #include "include/util.h"
-#include "include/event/smelt/beam_event.h"
-#include "include/event/smelt/ppac_event.h"
+#include "include/event/ingot/beam_event.h"
+#include "include/event/ingot/ppac_event.h"
 
 namespace {
 

@@ -7,7 +7,7 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "include/event/smelt/align_event.h"
+#include "include/event/ingot/align_event.h"
 
 namespace forgerib {
 

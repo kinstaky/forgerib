@@ -8,7 +8,7 @@
 #include <TH1F.h>
 #include <TTree.h>
 
-#include "include/event/smelt/beam_event.h"
+#include "include/event/ingot/beam_event.h"
 #include "include/event/ore/raw_beam_event.h"
 
 namespace forgerib {

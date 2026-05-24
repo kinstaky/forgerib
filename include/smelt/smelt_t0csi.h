@@ -1,7 +1,7 @@
 #ifndef __FUSE_T0CSI_H__
 #define __FUSE_T0CSI_H__
 
-#include "include/event/smelt/align_event.h"
+#include "include/event/ingot/align_event.h"
 
 namespace forgerib {
 

@@ -8,7 +8,7 @@
 #include <TTree.h>
 #include <TH1F.h>
 
-#include "include/event/smelt/ppac_event.h"
+#include "include/event/ingot/ppac_event.h"
 #include "include/event/ore/raw_ppac_event.h"
 
 namespace forgerib {

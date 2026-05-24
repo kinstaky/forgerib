@@ -13,9 +13,9 @@
 #include "include/util.h"
 #include "include/event/ingot/trigger_event.h"
 #include "include/event/ore/raw_trigger_event.h"
-#include "include/event/smelt/csi_event.h"
-#include "include/event/smelt/dssd_event.h"
-#include "include/event/smelt/tafd_event.h"
+#include "include/event/ingot/csi_event.h"
+#include "include/event/ingot/dssd_event.h"
+#include "include/event/ingot/tafd_event.h"
 #include "include/smelt/smelt_beam.h"
 #include "include/smelt/smelt_detector.h"
 #include "include/smelt/smelt_ppac.h"
@@ -423,7 +423,7 @@ int main(int argc, char **argv) {
 				true
 			);
 		} else if (detector == "t1csiu") {
-			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+			result = forgerib::SmeltDetector<forgerib::CsiEvent<4>>(
 				vme_entries,
 				GritVmeInputPath(grit_dir, "t1csiu", vme_run).Data(),
 				IngotOutputPath(ingot_dir, "t1csiu", trigger_type, xia_run).Data(),
@@ -431,7 +431,7 @@ int main(int argc, char **argv) {
 				true
 			);
 		} else if (detector == "t1csid") {
-			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+			result = forgerib::SmeltDetector<forgerib::CsiEvent<13>>(
 				vme_entries,
 				GritVmeInputPath(grit_dir, "t1csid", vme_run).Data(),
 				IngotOutputPath(ingot_dir, "t1csid", trigger_type, xia_run).Data(),
@@ -447,7 +447,7 @@ int main(int argc, char **argv) {
 				true
 			);
 		} else if (detector == "tafcsi") {
-			result = forgerib::SmeltDetector<forgerib::CsiEvent>(
+			result = forgerib::SmeltDetector<forgerib::CsiEvent<12>>(
 				vme_entries,
 				GritVmeInputPath(grit_dir, "tafcsi", vme_run).Data(),
 				IngotOutputPath(ingot_dir, "tafcsi", trigger_type, xia_run).Data(),

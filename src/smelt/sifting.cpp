@@ -11,7 +11,7 @@
 #include <TH1F.h>
 #include <TF1.h>
 
-#include "include/event/smelt/align_event.h"
+#include "include/event/ingot/align_event.h"
 
 namespace forgerib {
 

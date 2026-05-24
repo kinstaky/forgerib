@@ -1,4 +1,4 @@
-#include "include/event/smelt/vme_event.h"
+#include "include/event/ingot/vme_event.h"
 
 namespace forgerib {
 

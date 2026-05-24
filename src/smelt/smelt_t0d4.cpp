@@ -8,7 +8,7 @@
 #include <TH1F.h>
 #include <TTree.h>
 
-#include "include/event/smelt/dssd_event.h"
+#include "include/event/ingot/dssd_event.h"
 #include "include/event/ore/raw_dssd_event.h"
 
 namespace forgerib {

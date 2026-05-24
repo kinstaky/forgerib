@@ -5,8 +5,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "include/event/smelt/csi_event.h"
-#include "include/event/smelt/align_event.h"
+#include "include/event/ingot/csi_event.h"
+#include "include/event/ingot/align_event.h"
 
 namespace forgerib {
 
@@ -23,7 +23,7 @@ int SmeltT0Csi(
 		std::cerr << "Error: Get tree from " << xia_csi_path << " failed.\n";
 		return -1;
 	}
-	CsiEvent xia_csi;
+	CsiEvent<36> xia_csi;
 	SetupInput(xia_tree, xia_csi);
 
 	TFile vme_csi_file(vme_csi_path, "read");
@@ -32,12 +32,12 @@ int SmeltT0Csi(
 		std::cerr << "Error: Get tree from " << vme_csi_path << " failed.\n";
 		return -2;
 	}
-	CsiEvent vme_csi;
+	CsiEvent<36> vme_csi;
 	SetupInput(vme_tree, vme_csi);
 
 	TFile opf(output_path, "recreate");
 	TTree opt("tree", "fused t0csi");
-	CsiEvent csi;
+	CsiEvent<36> csi;
 	SetupOutput(&opt, csi);
 
 	if (report) {

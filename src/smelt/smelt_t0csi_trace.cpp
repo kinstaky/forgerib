@@ -8,7 +8,7 @@
 #include <TH1F.h>
 #include <TTree.h>
 
-#include "include/event/smelt/csi_event.h"
+#include "include/event/ingot/csi_event.h"
 #include "include/event/ore/raw_csi_event.h"
 
 namespace forgerib {
@@ -139,5 +139,4 @@ int SmeltT0Csi_trace(
 }
 
 }
-
 

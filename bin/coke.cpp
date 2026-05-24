@@ -16,7 +16,7 @@
 #include "include/util.h"
 #include "include/config.h"
 #include "include/event/ore/raw_trigger_event.h"
-#include "include/event/smelt/align_event.h"
+#include "include/event/ingot/align_event.h"
 #include "include/event/ingot/trigger_event.h"
 
 using namespace forgerib;

@@ -8,7 +8,7 @@
 #include <TH1F.h>
 #include <TTree.h>
 
-#include "include/event/smelt/csi_event.h"
+#include "include/event/ingot/csi_event.h"
 #include "include/event/ore/raw_csi_event.h"
 
 namespace forgerib {
@@ -17,7 +17,7 @@ namespace {
 
 constexpr size_t kSlotNum = 1000;
 
-void ResetCsiEvent(CsiEvent &csi) {
+void ResetCsiEvent(CsiEvent<36> &csi) {
 	csi.flag = 0;
 	for (int i = 0; i < 36; ++i) {
 		csi.valid[i] = false;
@@ -26,7 +26,7 @@ void ResetCsiEvent(CsiEvent &csi) {
 	}
 }
 
-void UpdateCsiEvent(const RawCsiEvent &raw, CsiEvent &csi) {
+void UpdateCsiEvent(const RawCsiEvent &raw, CsiEvent<36> &csi) {
 	if (raw.index < 0 || raw.index >= 36) return;
 	if (!csi.valid[raw.index] || raw.energy > csi.energy[raw.index]) {
 		csi.valid[raw.index] = true;
@@ -46,7 +46,7 @@ int SmeltWithTrigger(
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
 	TTree opt("tree", "forged t0csi");
-	CsiEvent csi;
+	CsiEvent<36> csi;
 	SetupOutput(&opt, csi);
 
 	TFile ipf(path, "read");
@@ -58,7 +58,7 @@ int SmeltWithTrigger(
 	RawCsiEvent raw;
 	SetupInput(ipt, raw);
 
-	CsiEvent slots[kSlotNum];
+	CsiEvent<36> slots[kSlotNum];
 	for (size_t i = 0; i < kSlotNum; ++i) {
 		ResetCsiEvent(slots[i]);
 	}
@@ -130,7 +130,7 @@ int SmeltWithoutTrigger(
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
 	TTree opt("tree", "forged t0csi");
-	CsiEvent csi;
+	CsiEvent<36> csi;
 	SetupOutput(&opt, csi);
 
 	TFile ipf(path, "read");

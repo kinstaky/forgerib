@@ -1,4 +1,4 @@
-#include "include/event/smelt/beam_event.h"
+#include "include/event/ingot/beam_event.h"
 
 namespace forgerib {
 

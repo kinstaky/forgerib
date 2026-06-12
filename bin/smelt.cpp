@@ -81,19 +81,6 @@ TString IngotTriggeredPath(
 	);
 }
 
-// TString GrainPath(
-// 	const std::string &grain_dir,
-// 	const std::string &trigger_type,
-// 	int run
-// ) {
-// 	return TString::Format(
-// 		"%s/grain_%s%04d.root",
-// 		grain_dir.c_str(),
-// 		TriggerStem(trigger_type).c_str(),
-// 		run
-// 	);
-// }
-
 int ReadTrigger(
 	const char *path,
 	std::vector<double> &trigger,

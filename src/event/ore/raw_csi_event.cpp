@@ -16,7 +16,7 @@ void SetupOutput(TTree *tree, RawCsiEvent &event) {
 	tree->Branch("cv", &event.cv, "cv/O");
 }
 
-void SetupInput_trace(TTree *tree, RawCsi_trace_Event &event, const std::string &prefix) {
+void SetupInput(TTree *tree, RawCsiTraceEvent &event, const std::string &prefix) {
 	tree->SetBranchAddress((prefix+"index").c_str(), &event.index);
 	tree->SetBranchAddress((prefix+"energy").c_str(), &event.energy);
 	tree->SetBranchAddress((prefix+"time").c_str(), &event.time);
@@ -27,7 +27,7 @@ void SetupInput_trace(TTree *tree, RawCsi_trace_Event &event, const std::string 
 }
 
 
-void SetupOutput_trace(TTree *tree, RawCsi_trace_Event &event) {
+void SetupOutput(TTree *tree, RawCsiTraceEvent &event) {
 	tree->Branch("index", &event.index, "i/I");
 	tree->Branch("energy", &event.energy, "e/I");
 	tree->Branch("time", &event.time, "t/D");

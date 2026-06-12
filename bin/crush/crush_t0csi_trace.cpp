@@ -40,8 +40,8 @@ void DecodeT0CsIWithTrace(
 	);
 	TFile opf(filename, "recreate");
 	TTree opt("tree", "decode");
-	forgerib::RawCsi_trace_Event csi;
-	forgerib::SetupOutput_trace(&opt, csi);
+	forgerib::RawCsiTraceEvent csi;
+	forgerib::SetupOutput(&opt, csi);
 
 	if (report) {
 		printf("Decoding T0 CsI with traces   0%%");

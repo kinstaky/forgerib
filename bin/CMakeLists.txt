@@ -1,5 +1,4 @@
 add_subdirectory(crush)
-add_subdirectory(tune)
 
 add_executable(mine mine.cpp)
 target_link_libraries(mine PRIVATE config raw_reader ROOT::RIO ROOT::Tree)

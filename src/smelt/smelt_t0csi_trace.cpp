@@ -20,15 +20,14 @@ void ResetCsiEvent(Csi_trace_Event &csi) {
 	csi.hit_num =0;
 }
 
-void UpdateCsiEvent(const RawCsi_trace_Event &raw, Csi_trace_Event &csi) {
+void UpdateCsiEvent(const RawCsiTraceEvent &raw, Csi_trace_Event &csi) {
 	if (raw.index < 0 || raw.index >= 36) return;
 	csi.energy[csi.hit_num] = raw.energy;
 	csi.index[csi.hit_num] = raw.index;
 	csi.time[csi.hit_num] = raw.time;
 	for (int i=0; i<1000; i++) {csi.samples[csi.hit_num][i] = raw.samples[i];}
 	csi.hit_num += 1;
-
-	}
+}
 
 int SmeltWithTrigger(
 	const std::vector<double> &trigger_time,
@@ -37,11 +36,6 @@ int SmeltWithTrigger(
 	const double window,
 	bool report
 ) {
-	// std::cout << "Start." << std::endl;
-	// std::cout << trigger_time.size() << std::endl;
-	// std::cout << path << "\n" << output_path << std::endl;
-	// std::cout << window << ", " << report << "\n";
-	// fflush(stdout);
 	TFile opf(output_path, "recreate");
 	TH1F forge_window("fw", "forge window", 200, -window, window);
 	TTree opt("tree", "forged t0csi");
@@ -54,15 +48,14 @@ int SmeltWithTrigger(
 		std::cerr << "Error: Get tree from " << path << " failed.\n";
 		return -1;
 	}
-	RawCsi_trace_Event raw;
-	SetupInput_trace(ipt, raw);
+	RawCsiTraceEvent raw;
+	SetupInput(ipt, raw);
 
 	std::vector<Csi_trace_Event> slots;
 	slots.resize(kSlotNum);
 	for (size_t i = 0; i < kSlotNum; ++i) {
 		ResetCsiEvent(slots[i]);
 	}
-	// std::cout << std::hex << slots << ", " << &(slots[1]) << std::endl;
 	Csi_trace_Event test;
 	size_t tofill_entry = 0;
 
@@ -122,9 +115,6 @@ int SmeltWithTrigger(
 	opf.Close();
 	return 0;
 }
-
-
-
 }
 
 int SmeltT0Csi_trace(
@@ -132,9 +122,8 @@ int SmeltT0Csi_trace(
 	const char *path,
 	const char *output_path,
 	const double window,
-	bool report)
-
-{
+	bool report
+) {
 	return SmeltWithTrigger(trigger_time, path, output_path, window, report);
 }
 

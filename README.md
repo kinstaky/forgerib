@@ -134,4 +134,3 @@ Examples with an alternate config file:
 ## Notes
 
 - `scripts/crush.sh` runs only the XIA `crush_*` stage.
-- `bin/mine.cpp` and `bin/tune/` provide auxiliary tooling and are not part of the standard `forge.sh` flow.

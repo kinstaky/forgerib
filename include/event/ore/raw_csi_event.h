@@ -13,8 +13,7 @@ struct RawCsiEvent {
 	bool cv;
 };
 
-struct RawCsi_trace_Event
-{
+struct RawCsiTraceEvent {
 	int index;
 	int energy;
 	double time;
@@ -29,8 +28,8 @@ void SetupInput(TTree *tree, RawCsiEvent &event, const std::string &prefix = "")
 
 void SetupOutput(TTree *tree, RawCsiEvent &event);
 
-void SetupInput_trace(TTree *tree, RawCsi_trace_Event &event, const std::string &prefix = "");
+void SetupInput(TTree *tree, RawCsiTraceEvent &event, const std::string &prefix = "");
 
-void SetupOutput_trace(TTree *tree, RawCsi_trace_Event &event);
+void SetupOutput(TTree *tree, RawCsiTraceEvent &event);
 
 }

@@ -1,8 +1,0 @@
-#!/bin/bash
-
-./build/bin/crush/crush_trigger $1
-./build/bin/crush/crush_ppac $1
-./build/bin/crush/crush_beam $1
-./build/bin/coke -r $1
-./build/bin/smelt/smelt -r $1 -t main beam ppac
-./build/bin/tune/gated_ppac $1

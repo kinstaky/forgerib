@@ -1,0 +1,1195 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="kinstaky">
+      
+      
+        <link rel="canonical" href="https://kinstaky.github.io/forgerib/1.0/basic/usage/">
+      
+      
+        <link rel="prev" href="../install/">
+      
+      
+        <link rel="next" href="../structure/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>使用方法 - ForgeRIB</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="ForgeRIB" class="md-header__button md-logo" aria-label="ForgeRIB" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ForgeRIB
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              使用方法
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kinstaky/forgerib" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kinstaky/forgerib
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ForgeRIB" class="md-nav__button md-logo" aria-label="ForgeRIB" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ForgeRIB
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kinstaky/forgerib" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kinstaky/forgerib
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    简介
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    下载编译
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用方法
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用方法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        全局配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VME 阈值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解码 XIA 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vme_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        映射 VME 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        对齐筛选
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重组熔炼
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚本
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    数据结构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../summary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    进阶
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    进阶
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advance/flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    整体流程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advance/crush/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    解码分类
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advance/sift/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    对齐筛选
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advance/smelt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重组熔炼
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        全局配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VME 阈值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解码 XIA 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vme_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        映射 VME 数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        对齐筛选
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重组熔炼
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚本
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="_1">使用方法</h1>
+<h2 id="_2">配置</h2>
+<h3 id="_3">全局配置</h3>
+<p>所有的程序都需要读取配置文件，默认的配置文件是当前目录（当前终端中的目录）的 <code>config.toml</code> 文件（即代码里写的是 <code>./config.toml</code>），也可以通过 <code>-c other_config.toml</code> 或者 <code>--config other_config.toml</code> 来指定其它的配置。</p>
+<p>配置文件格式如下</p>
+<div class="language-toml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">workspace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/data/ribll2026&quot;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="n">trigger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;main&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="n">jump_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">192</span><span class="p">,</span><span class="w"> </span><span class="mi">1010</span><span class="p">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="k">[paths]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="n">raw_xia0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/data/ribll2026/raw/xia0&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="n">raw_xia1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/data/ribll2026/raw/xia1&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="n">raw_xia2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/data/ribll2026/raw/xia2&quot;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="n">raw_vme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/data/ribll2026/ore/vme&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="n">ore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ore&quot;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="n">grit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;grit&quot;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="n">grain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;grain&quot;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="n">ingot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ingot&quot;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="k">[prefix]</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="n">raw_xia0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;data&quot;</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="n">raw_xia1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;data&quot;</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="n">raw_xia2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;data&quot;</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="n">raw_vme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;data&quot;</span>
+</code></pre></div></td></tr></table></div>
+<p><code>workspace</code> 用于指定本项目所有生成的 ROOT 文件的存储路径。</p>
+<p><code>trigger</code> 是重组事件时选用的触发，可以选择 <code>main</code> 或者 <code>t1</code>，简单理解 <code>main</code> 是所有带有主触发的事件（理论上是所有事件，但是主触发可能被漏记）；<code>t1</code> 则是 VME 获取有触发的事件，为什么叫 <code>t1</code> 不重要。选用<code>main</code>触发后生成的 ROOT 文件的文件名中不会有标签，但是选用 <code>t1</code> 触发后生成的 ROOT 文件的文件名中都带有 <code>_t1_</code> 标签。</p>
+<p><code>jump_run</code> 用于跳过有问题的 run，上述配置中跳过了 4、192、1010，具体需要跳过哪些需要查看 <a href="https://docs.qq.com/sheet/DYmdLZ2V1U2Z3UG1X">run shift</a> 或者记录本。</p>
+<p><code>paths.raw_xia0</code> 用于指定 XIA0 机箱的原始数据（.bin 文件）的路径（该路径取决于拷贝数据后放到哪了），搭配 <code>prefix.raw_xia0</code> 指定原始数据文件名前缀（本次实验都是 data）。</p>
+<p><code>paths.raw_xia1</code>、<code>paths.raw_xia2</code> 以及 <code>prefix.raw_xia1</code>、<code>prefix.raw_xia2</code> 同理。</p>
+<p><code>paths.raw_vme</code> 是指定 VME 获取系统<strong>转出来的 ROOT 文件</strong>，而非原始的 ridf 文件，<code>prefix.raw_vme</code> 则是 ROOT 文件的前缀，本次实验保持 data 即可。</p>
+<p><code>paths.ore</code>、<code>paths.grit</code>、<code>paths.grain</code>、<code>paths.ingot</code> 都是本项目转出来的 ROOT 文件存储的路径，<code>paths.ingot</code> 是最终有用的，其它三个路径都是中间文件。该路径是配合 <code>workspace</code> 使用的，具体来说，上述配置最终生成的 ROOT 文件会存储到 <code>/data/ribll2026/ingot</code> 目录中（即<code>&lt;workspace&gt;/&lt;ingot&gt;</code>）。</p>
+<h3 id="vme">VME 阈值</h3>
+<p>VME 获取系统的 ADC 是带有 pedestal 的，本项目会在预处理阶段去除 pedestal，只保留有效事件。阈值通过 <code>vme_threshold.toml</code> 文件写入，下面展示其中一部分</p>
+<div class="language-toml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">tafcsi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">        </span><span class="mf">85.6</span><span class="p">,</span><span class="w"> </span><span class="mf">70.1</span><span class="p">,</span><span class="w"> </span><span class="mf">84.2</span><span class="p">,</span><span class="w"> </span><span class="mf">70.3</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">        </span><span class="mf">77.8</span><span class="p">,</span><span class="w"> </span><span class="mf">72.7</span><span class="p">,</span><span class="w"> </span><span class="mf">78.7</span><span class="p">,</span><span class="w"> </span><span class="mf">68.9</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">        </span><span class="mf">69.3</span><span class="p">,</span><span class="w"> </span><span class="mf">71.7</span><span class="p">,</span><span class="w"> </span><span class="mf">74.2</span><span class="p">,</span><span class="w"> </span><span class="mf">66.4</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="p">]</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="k">[tafd0]</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="n">front</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">        </span><span class="mf">141.8</span><span class="p">,</span><span class="w"> </span><span class="mf">150.1</span><span class="p">,</span><span class="w"> </span><span class="mf">127.1</span><span class="p">,</span><span class="w"> </span><span class="mf">130.8</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">        </span><span class="mf">137.2</span><span class="p">,</span><span class="w"> </span><span class="mf">163.7</span><span class="p">,</span><span class="w"> </span><span class="mf">170.0</span><span class="p">,</span><span class="w"> </span><span class="mf">148.5</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">        </span><span class="mf">160.4</span><span class="p">,</span><span class="w"> </span><span class="mf">135.6</span><span class="p">,</span><span class="w"> </span><span class="mf">154.8</span><span class="p">,</span><span class="w"> </span><span class="mf">167.8</span><span class="p">,</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">        </span><span class="mf">180.6</span><span class="p">,</span><span class="w"> </span><span class="mf">176.6</span><span class="p">,</span><span class="w"> </span><span class="mf">174.9</span><span class="p">,</span><span class="w"> </span><span class="mf">161.9</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="p">]</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="n">back</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">        </span><span class="mf">100.4</span><span class="p">,</span><span class="w"> </span><span class="mf">72.0</span><span class="p">,</span><span class="w"> </span><span class="mf">99.9</span><span class="p">,</span><span class="w"> </span><span class="mf">74.1</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">        </span><span class="mf">102.2</span><span class="p">,</span><span class="w"> </span><span class="mf">105.8</span><span class="p">,</span><span class="w"> </span><span class="mf">79.5</span><span class="p">,</span><span class="w"> </span><span class="mf">65.6</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+<p>上面展示的是 TAFCsI （环形硅后面的楔形 CsI(Tl)）和 TAFD0 （环形硅 0）的阈值，低于该阈值的事件都会被卡掉。所有的序号都是默认从 0 开始，对应编号从 0 开始的探测器或者硅条。比如说，这里的 TAFCsI 数组里有 12 个阈值，就是按照 0-11 的序号，其中 0 和 1 对应 TAFD0，2 和 3 对应 TAFD1，如此类推，具体探测器对应关系参见实验记录本；而 TAFD0 分为 front 和 back 两个数组，分别对应正面硅条 0-15 和背面硅条 0-7。需要注意的是 T0 的 CsI(Tl) 一部分在 XIA，一部分在 VME 中，所以该文件中只需要填对应的 VME 中的 15 块 CsI(Tl) 的阈值即可。</p>
+<h2 id="_4">运行</h2>
+<h3 id="xia">解码 XIA 数据</h3>
+<p>编译好后，在根目录运行 crush 目录中的文件，分别解码每一个 XIA 获取记录的探测器</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span>
+<span class="normal"><a href="#__codelineno-2-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a>./build/bin/crush/crush_beam<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a>./build/bin/crush/crush_ppac<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a>./build/bin/crush/crush_trigger<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a>./build/bin/crush/crush_t0d1<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a>./build/bin/crush/crush_t0d2<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a>./build/bin/crush/crush_t0d3<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a>./build/bin/crush/crush_t0d4<span class="w"> </span>&lt;run&gt;
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a>./build/bin/crush/crush_others<span class="w"> </span>&lt;run&gt;
+</code></pre></div></td></tr></table></div>
+<ul>
+<li><code>crush_beam</code> 对应束流线上的两块塑闪</li>
+<li><code>crush_ppac</code> 对应 PPAC</li>
+<li><code>crush_trigger</code> 对应 XIA 中记录的触发</li>
+<li><code>crush_t0d1</code> 对应 T0D1，65um 的 DSSD</li>
+<li><code>crush_t0d2</code> 对应 T0D2，64*64 的 DSSD</li>
+<li><code>crush_t0d3</code> 对应 T0D3</li>
+<li><code>crush_t0d4</code> 对应 T0D4</li>
+<li><code>crush_others</code> 对应剩下的 T0CsI、T0S (T0 的 SSD)、T1SU（T1 上方的 SSD）、T1SD（T1 下方的 SSD）</li>
+</ul>
+<p>另外，<code>&lt;run&gt;</code> 表示的是 run 编号，实际使用时替换成数字。</p>
+<p>这些程序只需要 XIA 的原始数据即可运行，没有前置运行要求。生成的 ROOT 文件在 <code>&lt;workspace&gt;/&lt;grit&gt;</code> 目录中，每个探测器保存在独立的文件中。</p>
+<h3 id="vme_1">映射 VME 数据</h3>
+<p>由于 VME 的数据已经转成 ROOT 文件了，只需要映射到不同的探测器</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a>./build/bin/crush_vme<span class="w"> </span>&lt;run&gt;
+</code></pre></div></td></tr></table></div>
+<p>其中，<code>&lt;run&gt;</code> 需要替换为 <strong>VME</strong> 获取的 run 编号，某些情况下不等同于 XIA 获取的 run 编号，详情参见 run shift。</p>
+<p>这一步需要 VME 已经转好的 ROOT 文件，同时会根据 <code>vme_threshold.toml</code> 扔掉低于阈值的事件，输出的文件在 <code>&lt;workspace&gt;/&lt;grit&gt;</code> 中，文件名中带有 vme 标签（<code>_vme_</code>）。</p>
+<h3 id="_5">对齐筛选</h3>
+<p>接下来将两套获取系统的事件对齐，在 XIA 和 VME 的 run 序号不同时，分别指定</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a>./build/bin/sift<span class="w"> </span>-x<span class="w"> </span>&lt;xia_run&gt;<span class="w"> </span>-v<span class="w"> </span>&lt;vme_run&gt;
+</code></pre></div></td></tr></table></div>
+<p>而在 run 序号相同时，只指定一个 run 序号也是可以的</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a>./build/bin/sift<span class="w"> </span>-r<span class="w"> </span>&lt;run&gt;
+</code></pre></div></td></tr></table></div>
+<p>其中 <code>-x</code> 指定 XIA 的 run 序号，<code>-v</code> 指定 VME 的 run 序号，<code>-r</code> 同时指定两者（仅在 XIA  和 VME run 序号相同时可用）。</p>
+<p>这一步需要前两步（<em>解码 XIA 数据</em>和 <em>映射 VME 数据</em>）作为前置，根据触发的时间戳将两套系统的事件对齐，输出的 ROOT 文件在 <code>&lt;workspace&gt;/&lt;grain&gt;</code> 目录中。</p>
+<h3 id="_6">重组熔炼</h3>
+<p>最后是根据对齐后的触发（目前是 main 或者 t1），根据时间戳或者事件序号将各个探测器的事件重组，重组成各个探测器符合的事件。首先是准备触发</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a>./build/bin/coke<span class="w"> </span>-r<span class="w"> </span>&lt;run&gt;
+</code></pre></div></td></tr></table></div>
+<p>然后是处理各个探测器</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a>./build/bin/smelt<span class="w"> </span>-r<span class="w"> </span>&lt;run&gt;<span class="w"> </span>ppac<span class="w"> </span>t0d2<span class="w"> </span>t0csi
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a>./build/bin/smelt<span class="w"> </span>-r<span class="w"> </span>&lt;run&gt;<span class="w"> </span>-t<span class="w"> </span>main<span class="w"> </span>ppac<span class="w"> </span>t0d2<span class="w"> </span>t0csi
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a>./buil/bin/smelt<span class="w"> </span>-r<span class="w"> </span>&lt;run&gt;<span class="w"> </span>-t<span class="w"> </span>t1<span class="w"> </span>ppac<span class="w"> </span>t0d2<span class="w"> </span>t0csi
+</code></pre></div></td></tr></table></div>
+<p><code>coke</code> 根据上一步对齐的结果，分别根据 main 触发和 t1 触发重新组织多个通道的触发数据，输出到 <code>&lt;worksapce&gt;/&lt;ingot&gt;</code> 中，用于后续其它探测器的重组。</p>
+<p>main 触发是主触发事件，理论上包含所有的事件，转出来的文件很大，运行相对较慢，且其中有大量的束流事件。t1 触发是筛选了 VME 中有超过阈值的靶后探测器事件，数据量小得多，适用于仅分析与 TAF 或者 T1 有符合的事件，并且其中的未反应束流事件被大幅压低，也适用于归一 T0 硅和卡 PID。</p>
+<p><code>smelt</code> 则是根据选用的触发逐个重组探测器事件，上述示例中仅重组了 PPAC、T0D2、T0CsI 的事件，实际处理时按需添加探测器。各个探测器的名称见下表。重组后的事件都输出到 <code>&lt;workspace&gt;/&lt;ingot&gt;</code> 中。比如说选用 main 触发时，PPAC 的输出文件名为 <code>ppac_0123.root</code>，而选用 t1 触发时，输出的文件名为 <code>ppac_t1_0123.root</code>。</p>
+<p>仔细观察上述示例，第一行没有显示指定触发，使用默认配置文件中的默认触发（即 <code>config.toml</code> 的 <code>trigger</code> 条目）；第二行通过 <code>-t main</code> 指定 main 触发；第三行通过 <code>-t t1</code> 指定 t1 触发。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>beam</td>
+<td>束流线上的 2 块塑闪</td>
+</tr>
+<tr>
+<td>ppac</td>
+<td>靶前的 3 块 PPAC</td>
+</tr>
+<tr>
+<td>t0d1</td>
+<td>T0 第一块 DSSD，65um</td>
+</tr>
+<tr>
+<td>t0d2</td>
+<td>T0 第二块 DSSD，64 <span class="arithmatex">\(\times\)</span> 64</td>
+</tr>
+<tr>
+<td>t0d3</td>
+<td>T0 第三块 DSSD，32 <span class="arithmatex">\(\times\)</span> 32</td>
+</tr>
+<tr>
+<td>t0d4</td>
+<td>T0 第四块 DSSD</td>
+</tr>
+<tr>
+<td>t0s</td>
+<td>T0 的 SSD</td>
+</tr>
+<tr>
+<td>t0csi</td>
+<td>T0 的 CsI(Tl)</td>
+</tr>
+<tr>
+<td>tafd</td>
+<td>6 块环形硅</td>
+</tr>
+<tr>
+<td>tafcsi</td>
+<td>12 块楔形碘化铯，在环形硅后面</td>
+</tr>
+<tr>
+<td>t1dd</td>
+<td>T1 下面的 DSSD</td>
+</tr>
+<tr>
+<td>t1sd</td>
+<td>T1 下面的 SSD</td>
+</tr>
+<tr>
+<td>t1cisd</td>
+<td>T1 下面的 CsI(Tl) 和 GAGG</td>
+</tr>
+<tr>
+<td>t1du</td>
+<td>T1 上面的 DSSD</td>
+</tr>
+<tr>
+<td>t1su</td>
+<td>T1 上面的 SSD</td>
+</tr>
+<tr>
+<td>t1csiu</td>
+<td>T1 上面的 CsI(Tl)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_7">脚本</h2>
+<p>为了方便，可以直接跑 <code>scripts/forge.sh</code> 脚本，该脚本囊括了上述预处理过程，以及大部分的探测器。</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a>bash<span class="w"> </span>scripts/forge.sh<span class="w"> </span>&lt;run&gt;
+</code></pre></div></td></tr></table></div>
+<p>使用时需要输入 run 编号，该脚本<strong>默认 XIA 和 VME 的 run 编号相同</strong>，实际情况有出入时需要自行修改脚本或者不用脚本。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.expand"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

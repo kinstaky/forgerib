@@ -1,6 +1,8 @@
-# forgerib
+# ForgerRIB
 
-This repository contains a CERN ROOT based data-processing pipeline for the RIBLL2026 experiment. It turns raw XIA and VME data into detector-specific ROOT outputs, aligns XIA and VME triggers, and produces forged trigger/event files for downstream analysis.
+This repository contains a CERN ROOT based pre-processing pipeline for the RIBLL2026 experiment's data. It turns raw XIA and VME data into detector-specific ROOT outputs, aligns XIA and VME triggers, and produces ingot-level event files for downstream analysis.
+
+Full document in Chinese: [https://kinstaky.github.io/forgerib](https://kinstaky.github.io/forgerib).
 
 > AI-generated notice: this README was generated with AI assistance from the repository contents and should be reviewed like source code documentation.
 
@@ -25,7 +27,7 @@ The main processing stages reflected by the code and scripts are:
 
 - CMake 3.10 or newer
 - A C++17 compiler
-- CERN ROOT 6.20 or newer, available through `find_package(ROOT ... CONFIG REQUIRED)`
+- CERN ROOT 6.20 or newer
 
 This project requires an out-of-source build.
 
@@ -130,7 +132,3 @@ Examples with an alternate config file:
 ./build/bin/sift -c my-config.toml -x 123 -v 123
 ./build/bin/coke -c my-config.toml -r 123
 ```
-
-## Notes
-
-- `scripts/crush.sh` runs only the XIA `crush_*` stage.

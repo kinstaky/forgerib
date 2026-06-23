@@ -16,6 +16,7 @@
 #include "include/event/ingot/csi_event.h"
 #include "include/event/ingot/dssd_event.h"
 #include "include/event/ingot/tafd_event.h"
+#include "include/event/ingot/ppac_event.h"
 #include "include/smelt/smelt_beam.h"
 #include "include/smelt/smelt_detector.h"
 #include "include/smelt/smelt_ppac.h"
@@ -185,7 +186,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"detectors",
-			"Detector list: ppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, t0csi_trace, beam, t1du, t1dd, t1csiu, t1csid, tafd, tafcsi",
+			"Detector list: ppac, vppac, t0d1, t0d2, t0d3, t0d4, t0s, t1su, t1sd, t0csi, t0csi_trace, beam, t1du, t1dd, t1csiu, t1csid, tafd, tafcsi",
 			cxxopts::value<std::vector<std::string>>(),
 			"detector"
 		);
@@ -381,9 +382,6 @@ int main(int argc, char **argv) {
 				trigger_type,
 				xia_run
 			);
-			// std::cout << bloom_path.Data() << "\n";
-			// std::cout << GritInputPath(grit_dir, "t0csi_trace", xia_run).Data() << "\n";
-			// std::cout << __LINE__ << "\n";
 			result = forgerib::SmeltT0Csi_trace(
 				triggers,
 				GritInputPath(grit_dir, "t0csi_trace", xia_run).Data(),
@@ -391,8 +389,6 @@ int main(int argc, char **argv) {
 				1000.0,
 				true
 			);
-			// std::cout << __LINE__ << "\n";
-
 		} else if (detector == "t1du") {
 			result = forgerib::SmeltDetector<forgerib::DssdEvent>(
 				vme_entries,
@@ -439,6 +435,14 @@ int main(int argc, char **argv) {
 				GritVmeInputPath(grit_dir, "tafcsi", vme_run).Data(),
 				IngotOutputPath(ingot_dir, "tafcsi", trigger_type, xia_run).Data(),
 				"tafcsi",
+				true
+			);
+		} else if (detector == "vppac") {
+			result = forgerib::SmeltDetector<forgerib::PpacEvent>(
+				vme_entries,
+				GritVmeInputPath(grit_dir, "ppac", vme_run).Data(),
+				IngotOutputPath(ingot_dir, "vppac", trigger_type, xia_run).Data(),
+				"vppac",
 				true
 			);
 		} else {

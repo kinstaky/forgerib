@@ -14,7 +14,7 @@ struct PpacEvent {
 	// bool cv[15];
 };
 
-void SetupInput(TTree *tree, PpacEvent &event, const std::string &prefix);
+void SetupInput(TTree *tree, PpacEvent &event, const std::string &prefix="");
 
 void SetupOutput(TTree *tree, PpacEvent &event);
 

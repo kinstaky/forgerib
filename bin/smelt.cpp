@@ -124,19 +124,6 @@ int ReadTrigger(
 	return 0;
 }
 
-// long long GetXiaTotal(const std::string &ingot_dir, int run) {
-// 	TString filename = TString::Format("%s/trigger_%04d.root", ingot_dir.c_str(), run);
-// 	TFile ipf(filename, "read");
-// 	TTree *ipt = static_cast<TTree*>(ipf.Get("tree"));
-// 	if (!ipt) {
-// 		std::cerr << "Error: Get tree from " << filename << " failed.\n";
-// 		return -1;
-// 	}
-// 	const long long total = ipt->GetEntries();
-// 	ipf.Close();
-// 	return total;
-// }
-
 bool NeedsVmeRun(const std::string &detector) {
 	return detector == "t0csi"
 		|| detector == "t1du"
@@ -145,7 +132,8 @@ bool NeedsVmeRun(const std::string &detector) {
 		|| detector == "t1csiu"
 		|| detector == "t1csid"
 		|| detector == "tafd"
-		|| detector == "tafcsi";
+		|| detector == "tafcsi"
+		|| detector == "vppac";
 }
 
 } // namespace
@@ -168,7 +156,7 @@ int main(int argc, char **argv) {
 		)
 		(
 			"r,run",
-			"XIA run number.",
+			"XIA  and VME run number.",
 			cxxopts::value<int>(),
 			"run"
 		)
@@ -200,6 +188,7 @@ int main(int argc, char **argv) {
 
 	const bool has_run = parse_result.count("run") > 0;
 	const bool has_xia_run = parse_result.count("xia-run") > 0;
+	const bool has_vme_run = parse_result.count("vme-run") > 0;
 	if (!has_run && !has_xia_run) {
 		std::cout << options.help() << "\n";
 		return 0;
@@ -244,13 +233,13 @@ int main(int argc, char **argv) {
 		detectors.end(),
 		NeedsVmeRun
 	);
-	if (require_vme && !parse_result.count("vme-run")) {
-		std::cerr << "Error: --vme-run is required for fused detectors.\n";
+	if (require_vme && !has_vme_run && !has_run) {
+		std::cerr << "Error: --vme-run is required for VME detectors.\n";
 		return -1;
 	}
 	const int vme_run = parse_result.count("vme-run")
 		? parse_result["vme-run"].as<int>()
-		: -1;
+		: parse_result["run"].as<int>();
 
 	const std::string grit_dir = forgerib::JoinPath(config.workspace, config.paths.grit);
 	const std::string grain_dir = forgerib::JoinPath(config.workspace, config.paths.grain);

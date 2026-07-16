@@ -253,7 +253,9 @@ void ResetPpacEvent(PpacEvent &event) {
 }
 
 double GdcTime(const VmeBranches &input, int bank, int channel) {
-	return double(input.gdc[bank][channel][0] - input.gdc[bank][0][0]) / 10.0;
+	return bank == 0
+		? double(input.gdc[0][channel][0] - input.gdc[0][1][0]) / 10.0
+		: double(input.gdc[1][channel][0] - input.gdc[1][96][0]) / 10.0;
 }
 
 int AdcEnergy(const VmeBranches &input, const ChannelRef &ref) {
